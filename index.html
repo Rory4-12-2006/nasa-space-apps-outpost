@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mars: Sols of Survival</title>
+  <meta name="description" content="A browser game for kids: run a Mars outpost through real NASA space-weather events.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- ============ TITLE ============ -->
+  <section id="screen-title" class="screen active">
+    <div class="title-wrap">
+      <h1 class="logo">MARS<span>Sols of Survival</span></h1>
+      <div class="cat big" aria-hidden="true">🐱</div>
+      <p class="tagline">Run a base on Mars. Real NASA space weather is coming.<br>Every choice helps one thing and costs another.</p>
+      <button class="btn btn-play" data-action="start">▶ Play</button>
+      <div class="row">
+        <button class="btn btn-blue" data-action="sources">📋 Data Sources</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ BRIEFING ============ -->
+  <section id="screen-brief" class="screen">
+    <div class="panel brief">
+      <h2>Mission briefing</h2>
+      <p class="cat-line"><span class="cat" aria-hidden="true">🐱</span> Hi, commander! I'm Astro-Cat. Keep these three bars above zero for <b>5 Sols</b>.</p>
+      <ul class="brief-list">
+        <li><span class="ico">⚡</span><b>Power</b> runs everything. It drops every Sol.</li>
+        <li><span class="ico">💨</span><b>Life Support</b> is air, water and food. It drops every Sol.</li>
+        <li><span class="ico">🧑‍🚀</span><b>Crew Health</b> drops when radiation hits the crew.</li>
+      </ul>
+      <p class="small"><b>Sol</b> = one day on Mars (24 hours and 40 minutes).</p>
+      <button class="btn btn-play" data-action="begin">Let's go!</button>
+    </div>
+  </section>
+
+  <!-- ============ GAME ============ -->
+  <section id="screen-game" class="screen">
+    <header class="topbar">
+      <div class="sol" id="sol-label">SOL 1</div>
+      <div class="bars">
+        <div class="bar" id="bar-power"><span class="ico">⚡</span><div class="track"><div class="fill"></div><span class="num"></span></div><span class="lbl">Power</span></div>
+        <div class="bar" id="bar-life"><span class="ico">💨</span><div class="track"><div class="fill"></div><span class="num"></span></div><span class="lbl">Life Support</span></div>
+        <div class="bar" id="bar-health"><span class="ico">🧑‍🚀</span><div class="track"><div class="fill"></div><span class="num"></span></div><span class="lbl">Crew Health</span></div>
+      </div>
+      <div class="shield" title="Shield Level"><span class="ico">🛡️</span><span><span id="shield-num">0</span>/3</span><span class="lbl">Shield</span></div>
+      <div class="stars" title="Science Stars"><span class="ico">⭐</span><span id="stars-num">0</span><span class="lbl">Stars</span></div>
+    </header>
+
+    <main class="game-main">
+      <div class="base">
+        <div class="base-title">Your base</div>
+        <div class="slots" id="slots"></div>
+        <div class="net" id="net-line"></div>
+      </div>
+
+      <aside class="tray">
+        <div class="tray-head">
+          <h3>Build &amp; Work</h3>
+          <div class="ap" id="ap" aria-label="Action points"></div>
+        </div>
+        <div id="tray-buttons"></div>
+        <button class="btn btn-go" id="btn-ready" data-action="ready">Ready! Bring on the Sol ▶</button>
+      </aside>
+
+      <aside class="forecast" id="forecast"></aside>
+    </main>
+
+    <footer class="cat-box">
+      <span class="cat" aria-hidden="true">🐱</span>
+      <p id="cat-say">Let's build!</p>
+    </footer>
+  </section>
+
+  <!-- ============ EVENT / REVEAL OVERLAY ============ -->
+  <div id="overlay" class="overlay hidden" role="dialog" aria-modal="true">
+    <div class="panel modal" id="modal"></div>
+  </div>
+
+  <!-- ============ DEBRIEF ============ -->
+  <section id="screen-debrief" class="screen">
+    <div class="panel debrief" id="debrief"></div>
+  </section>
+
+  <!-- ============ DATA SOURCES ============ -->
+  <section id="screen-sources" class="screen">
+    <div class="panel sources">
+      <h2>Data Sources</h2>
+      <p>Every event in this game really happened. Each one shows its source.</p>
+      <div id="sources-list"></div>
+      <div class="real-vs">
+        <h3>Real vs. simplified</h3>
+        <p><b>Real:</b> event dates, flare classes, radiation measurements, Earth–Mars light delay, the 2018 dust storm.</p>
+        <p><b>Simplified for play:</b> bar sizes, how much each module makes, how fast Sols go by, and how radiation turns into Crew Health points.</p>
+        <p><b>Badges:</b> <span class="badge archive">ARCHIVE</span> means real past data stored in the game. Nothing here is live unless it says <span class="badge live">LIVE</span>.</p>
+      </div>
+      <div class="ai-note">
+        <h3>How we made this</h3>
+        <p>Game code was written with help from Claude (Anthropic). Concept art was AI-generated. Our team chose and checked all NASA data, facts and game design.</p>
+      </div>
+      <button class="btn btn-blue" data-action="home">◀ Back</button>
+    </div>
+  </section>
+
+  <script src="data/events.js"></script>
+  <script src="js/game.js"></script>
+</body>
+</html>

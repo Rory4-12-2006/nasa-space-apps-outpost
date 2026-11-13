@@ -22,7 +22,7 @@
 - [ ] Debrief
 
 **Person B – data and submission (`data/`, `docs/`)**
-- [ ] `data/events.json`: 5 Quick Mission events from DONKI (FLR / SEP / CME), each with ID, date, class, speed, source URL
+- [ ] `data/events.js`: verify the 5 placeholder events against DONKI, NASA news and JPL Horizons. Fix the values, add exact source URLs, and set `verified: true`.
 - [ ] Verify the facts table in CLAUDE.md, with links
 - [ ] Earth–Mars light time for each event date (JPL Horizons)
 - [ ] Astro-Cat lines: headline, "why it matters", "Real Science" for each event

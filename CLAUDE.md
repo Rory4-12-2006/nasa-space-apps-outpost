@@ -95,9 +95,28 @@ Kids ages 7–12 run a lunar or Martian outpost and learn real engineering trade
 | 2018 dust storm | Global storm that ended the Opportunity rover | NASA JPL |
 | NASA career dose limit | 600 mSv | NASA-STD-3001 (2022) |
 
+## Build status (update as you go)
+- **2026-11-13, 1–2 PM:** MVP playable end to end on branch `feature/game-loop`. It includes:
+  - Title, briefing, main screen, the 5-Sol loop, Ask Earth, Debrief, Data Sources
+  - Mobile layout
+- **Balance check (scripted play):**
+  - Careful play wins.
+  - The walls-then-work strategy wins with the top score.
+  - Reckless play and doing nothing lose to radiation on Sol 5.
+  - Building two greenhouses runs out of power on Sol 4.
+- **Tuning numbers** are at the top of `js/game.js`. Re-run those strategies after changing them.
+- **Not done:**
+  - Real values in `data/events.js` are unverified (`verified: false`).
+  - No art yet (emoji placeholders).
+  - GitHub Pages is off.
+
+## How to run locally
+- Opening `index.html` directly works.
+- Or serve it: `py -m http.server 8123`, then open http://127.0.0.1:8123
+
 ## File layout
-- `index.html`, `css/style.css`, `js/game.js`, `js/data.js`: the game
-- `data/events.json`: archive events, each with source URL and pull date
+- `index.html`, `css/style.css`, `js/game.js`: the game
+- `data/events.js`: the 5 Quick Mission events, one per Sol. It's a `.js` file, not `.json`, so the game also works when opened straight from disk, where browsers block `fetch`. Each event has its citation and a `verified` flag.
 - `docs/PLAN.md`: timeline, task split, status
 - `docs/DATA_SOURCES.md`: datasets used and why (for the judges)
 - `docs/design/`, `docs/mockups/`: the team's preparation material
