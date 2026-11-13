@@ -1,30 +1,37 @@
-# Plan – deadline 2026-11-13 at midnight
+# Plan – hackathon Fri 13 Nov, 1:00 PM → submission Sat 14 Nov, 1:00 PM (CONFIRM the deadline)
 
-## Timeline (local time)
-| Time | Goal |
-|---|---|
-| 12:30–13:30 | Setup: repo and GitHub. Agree on the game design in CLAUDE.md. |
-| 13:30–17:00 | Core game loop works: resources, power split, turns, win/lose. |
-| 13:30–17:00 | (in parallel) Collect real NASA data: DONKI flare snapshot and facts. Write DATA_SOURCES.md. |
-| 17:00–20:00 | Connect real data to events. Add facts after each choice. Make it look clean. |
-| 20:00–21:30 | Playtest. Fix balance so every choice costs something. Test on a phone. |
-| 21:30–23:00 | Submission: GitHub Pages link, description, demo video or slides. |
-| 23:00–24:00 | Buffer. **Submit before 23:30.** Don't start new features after 21:30. |
+## Timeline (Cairo time)
+| When | Goal | Checkpoint |
+|---|---|---|
+| Fri 12:40–13:00 | Setup (done). Read CLAUDE.md. **Write no code yet.** | Both have the repo cloned |
+| Fri 13:00–17:00 | **Game:** screens, bars, modules, upkeep, Sol loop with fake events. **Data:** events.json from DONKI, verify facts. | 17:00: you can play 5 Sols with placeholder events |
+| Fri 17:00–21:00 | Plug in the real events and citations, add Ask Earth, Debrief, Data Sources screen | 21:00: the full Quick Mission is playable. **Push and turn on GitHub Pages.** |
+| Fri 21:00–24:00 | Playtest and balance: no choice should be free, and the game should be winnable but not trivial | Someone who isn't on the team plays it |
+| Sat 00:00–08:00 | Sleep in shifts. Stretch goals only if the MVP is solid. | |
+| Sat 08:00–10:30 | Polish, phone test, bug fixes. **No new features after 10:30.** | |
+| Sat 10:30–12:00 | Record the 30-second video (or 7 slides). Write the summary and resources. | |
+| Sat 12:00–12:30 | Team leader submits the local form, then the global NASA site. | **Submitted by 12:30** |
 
-## Task split (edit as needed)
+## Task split
 **Person A – game (`index.html`, `css/`, `js/`)**
-- [ ] Game state and turn loop
-- [ ] Power-split controls
-- [ ] Win/lose screens
-- [ ] Event system that reads from `data/`
+- [ ] Screen switching: title / main / debrief / data sources
+- [ ] State, bars, upkeep, lose condition
+- [ ] Modules and action points
+- [ ] Sol loop: forecast → prepare → event → decide → reveal
+- [ ] Ask Earth
+- [ ] Debrief
 
-**Person B – data and submission (`data/`, `docs/`, project page)**
-- [ ] Pull a DONKI flare / solar energetic particle snapshot into `data/` (with source URL and date)
-- [ ] 10–15 short, kid-friendly real facts (OSDR, Artemis), each with its source
-- [ ] `docs/DATA_SOURCES.md`
-- [ ] Submission text and demo video or slides
+**Person B – data and submission (`data/`, `docs/`)**
+- [ ] `data/events.json`: 5 Quick Mission events from DONKI (FLR / SEP / CME), each with ID, date, class, speed, source URL
+- [ ] Verify the facts table in CLAUDE.md, with links
+- [ ] Earth–Mars light time for each event date (JPL Horizons)
+- [ ] Astro-Cat lines: headline, "why it matters", "Real Science" for each event
+- [ ] `docs/DATA_SOURCES.md`, including the AI-use disclosure
+- [ ] 30-second video script, or the 7 slides
+- [ ] Project summary text
 
 ## Status
-- [x] Repo created locally
-- [ ] Pushed to GitHub
+- [x] Repo created and pushed to GitHub
+- [ ] Teammate added as a collaborator
+- [ ] Deadline confirmed
 - [ ] GitHub Pages on
