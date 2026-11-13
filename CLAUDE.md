@@ -95,6 +95,21 @@ Kids ages 7–12 run a lunar or Martian outpost and learn real engineering trade
 | 2018 dust storm | Global storm that ended the Opportunity rover | NASA JPL |
 | NASA career dose limit | 600 mSv | NASA-STD-3001 (2022) |
 
+## Scope change (2026-11-13, 2 PM): the user wants the full mockup look
+The first MVP was too stripped down. The user's mockups in `docs/mockups/` are the visual target. Built so far, to match them:
+- **Screens:** Loading (rover bar) → Title (Play / Data Sources / Settings) → Choose a Mission (4 cards) → Choose Location (Mars / Moon) → Briefing → Game → Debrief
+- **Overlays:** Settings (sound, read aloud, text size, calm mode, screen-time reminder) and Data Sources with LIVE / ARCHIVE / OFFLINE badges
+- **Main screen:** isometric 6×6 SVG grid with the habitat in the center. Tap a build card, then tap a glowing tile.
+- **Moon site:** Day instead of Sol, health upkeep 2, a lunar night event, the Aug 1972 storm, Ask Earth always in time (1.3 s)
+- **Today's Space Weather:** live DONKI call (SEP, CMEAnalysis, FLR) with DEMO_KEY and a 4 s timeout. It fills calm days honestly and falls back to an OFFLINE archive.
+  - Note: the DONKI **FLR** endpoint returned 404 on 2026-11-13. SEP and CMEAnalysis work.
+
+**Endless and Family modes** show as "Coming soon". The user did not pick them yet.
+
+**Art:** `docs/ASSETS.md` lists the PNGs the user will generate. Drop them in `assets/` with the exact names and the game uses them automatically. Until then it shows emoji.
+
+**Validity flag for the team:** the flare "radio blackout" locks Ask Earth. Real flare blackouts mostly affect HF radio on Earth's day side, not deep-space links. Decide whether to keep it, reword it, or switch it to Mars solar conjunction.
+
 ## Build status (update as you go)
 - **2026-11-13, 1–2 PM:** MVP playable end to end on branch `feature/game-loop`. It includes:
   - Title, briefing, main screen, the 5-Sol loop, Ask Earth, Debrief, Data Sources
