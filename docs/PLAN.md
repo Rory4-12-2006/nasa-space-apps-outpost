@@ -1,4 +1,4 @@
-# Plan – hackathon Fri 13 Nov, 1:00 PM → submission Sat 14 Nov, 1:00 PM (CONFIRM the deadline)
+# Plan – hackathon Fri 13 Nov, 1:00 PM → submission Sat 14 Nov, 1:00 PM (confirmed)
 
 ## Timeline (Cairo time)
 | When | Goal | Checkpoint |
@@ -33,5 +33,5 @@
 ## Status
 - [x] Repo created and pushed to GitHub
 - [ ] Teammate added as a collaborator
-- [ ] Deadline confirmed
+- [x] Deadline confirmed: Sat 14 Nov, 1:00 PM
 - [ ] GitHub Pages on

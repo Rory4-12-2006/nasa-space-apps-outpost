@@ -8,10 +8,7 @@ Read this file first in every session. Both teammates use Claude, so keep it up 
 
 ## Event facts (from the official Cairo 2026 guides)
 - **Hackathon start:** Friday 13 Nov 2026, 1:00 PM Cairo time.
-- **Submission:** Saturday 14 Nov 2026, 1:00 PM, per the guide's schedule ("confirm the final deadline").
-  - The user mentioned "12 am", which doesn't match the guide.
-  - **TODO: confirm the real deadline on Discord or the official announcements.**
-  - Late submissions are not accepted.
+- **Submission deadline: Saturday 14 Nov 2026, 1:00 PM Cairo time** (confirmed by the team). Our own target is **12:30 PM**. Late submissions are not accepted.
 - **Rule:** only work done during the hackathon counts. Preparing assets and plans in advance is allowed, but submitting pre-finished projects is prohibited. **Write no game code before 1:00 PM on Friday.**
 - **Mentors** are available from 2:00 PM Friday through Discord. They can advise but cannot write code.
 - **Ethics rules:**
