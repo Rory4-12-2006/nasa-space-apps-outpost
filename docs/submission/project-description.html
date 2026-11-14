@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Mars: Sols of Survival – Project Description</title>
+<style>
+  @page { size: A4; margin: 16mm 15mm 16mm 15mm; }
+  :root { --ink: #1c1a2e; --soft: #4b4a63; --mars: #d9774b; --mars-dark: #a9502f; --blue: #1f3b73; --sky: #eef4ff; --cream: #fff6e8; --green: #2f8a4a; --red: #b3261e; }
+  * { box-sizing: border-box; }
+  html { color-scheme: light; background: #fff; }
+  body { background: #fff; font-family: "Segoe UI", Arial, sans-serif; color: var(--ink); font-size: 10.5pt; line-height: 1.45; margin: 0; }
+  h1 { font-size: 30pt; margin: 0; color: var(--mars-dark); letter-spacing: .5px; }
+  h2 { font-size: 16pt; color: var(--blue); border-bottom: 3px solid var(--mars); padding-bottom: 3px; margin: 22px 0 8px; page-break-after: avoid; }
+  h3 { font-size: 12pt; color: var(--mars-dark); margin: 14px 0 4px; page-break-after: avoid; }
+  p { margin: 5px 0 7px; }
+  ul { margin: 4px 0 8px; padding-left: 18px; } li { margin: 2px 0; }
+  a { color: #1f5bb0; word-break: break-all; }
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; font-size: 9.3pt; page-break-inside: auto; }
+  th { background: var(--blue); color: #fff; text-align: left; padding: 5px 6px; }
+  td { border-bottom: 1px solid #d9d4cc; padding: 5px 6px; vertical-align: top; }
+  tr { page-break-inside: avoid; }
+  .cover { background: linear-gradient(160deg, #fbe3d1, #f6c3a6); border-radius: 16px; padding: 22px 24px; margin-bottom: 14px; }
+  .tagline { font-size: 13pt; color: var(--blue); font-weight: 600; margin-top: 4px; }
+  .idgrid { display: grid; grid-template-columns: 150px 1fr; gap: 4px 12px; margin-top: 14px; font-size: 10.5pt; }
+  .idgrid b { color: var(--soft); }
+  .fill { background: #fff176; padding: 0 5px; border-radius: 3px; font-weight: 700; }
+  .box { background: var(--cream); border-left: 5px solid var(--mars); border-radius: 8px; padding: 8px 12px; margin: 8px 0; page-break-inside: avoid; }
+  .box.blue { background: var(--sky); border-color: var(--blue); }
+  .box.green { background: #e8f6ec; border-color: var(--green); }
+  .box.red { background: #fdecea; border-color: var(--red); }
+  .event { border: 2px solid #f0c7ad; border-radius: 12px; padding: 10px 14px; margin: 10px 0; page-break-inside: avoid; }
+  .event .head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+  .event .sol { background: var(--mars); color: #fff; font-weight: 700; border-radius: 999px; padding: 1px 10px; font-size: 9pt; white-space: nowrap; }
+  .event h3 { margin: 0; }
+  .facts { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 14px; margin-top: 6px; }
+  .facts div { background: #faf7f2; border-radius: 6px; padding: 5px 8px; }
+  .facts b { display: block; color: var(--soft); font-size: 8.5pt; text-transform: uppercase; letter-spacing: .4px; }
+  .src { font-size: 8.8pt; color: var(--soft); margin-top: 5px; }
+  .flow { display: flex; gap: 6px; align-items: stretch; margin: 8px 0; }
+  .flow div { flex: 1; background: var(--sky); border-radius: 8px; padding: 6px; text-align: center; font-size: 9pt; }
+  .flow div b { display: block; color: var(--blue); font-size: 10pt; }
+  .figs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 8px 0; page-break-inside: avoid; }
+  figure { margin: 0; position: relative; background: #fbf7ef; border-radius: 10px; padding: 6px; text-align: center; }
+  figure img { max-width: 100%; height: 120px; object-fit: contain; display: block; margin: 0 auto; }
+  figure.wide { grid-column: span 3; } figure.wide img { height: 230px; width: 100%; object-fit: cover; border-radius: 8px; }
+  figcaption { font-size: 8.6pt; color: var(--soft); margin-top: 4px; }
+  .wm { position: absolute; top: 8px; left: 8px; background: rgba(28, 26, 46, .82); color: #fff; font-size: 7.5pt; font-weight: 700; padding: 2px 6px; border-radius: 4px; letter-spacing: .3px; }
+  .ok { color: var(--green); font-weight: 700; } .no { color: var(--red); font-weight: 700; }
+  .pb { page-break-before: always; }
+  .small { font-size: 9pt; color: var(--soft); }
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <h1>Mars: Sols of Survival</h1>
+  <div class="tagline">A browser game where kids aged 7–12 run a base on Mars or the Moon, and real NASA space weather decides what happens next.</div>
+  <div class="idgrid">
+    <b>Project name</b><span>Mars: Sols of Survival</span>
+    <b>Team name</b><span class="fill">[TEAM NAME]</span>
+    <b>Challenge</b><span><span class="fill">[OFFICIAL CHALLENGE TITLE]</span> – kids aged 7–12 run a lunar or Martian outpost and learn real engineering trade-offs, using real NASA data.</span>
+    <b>Event</b><span>NASA Space Apps Challenge, Cairo 2026 (13–14 November 2026)</span>
+    <b>Play the game</b><span><a href="https://rory4-12-2006.github.io/nasa-space-apps-outpost/">https://rory4-12-2006.github.io/nasa-space-apps-outpost/</a> (no login, no install)</span>
+    <b>Source code</b><span><a href="https://github.com/Rory4-12-2006/nasa-space-apps-outpost">https://github.com/Rory4-12-2006/nasa-space-apps-outpost</a></span>
+    <b>Demo</b><span class="fill">[DEMO VIDEO OR SLIDES LINK]</span>
+    <b>NASA Project page</b><span class="fill">[NASA PROJECT PAGE LINK]</span>
+  </div>
+</div>
+
+<h2>1. Project identity and short summary</h2>
+<p><b>Welcome to Mars: Sols of Survival!</b> For this challenge we did not just build a resource game – we built a survival adventure where the storms are real. A <i>Sol</i> is one day on Mars. Every Sol, the player's base is hit by an event that <b>really happened</b>: the giant sunspot of October 2014, the X8.2 solar flare of September 2017 that doubled radiation on the Martian surface, the planet-wide dust storm that ended NASA's Opportunity rover in 2018, and the strongest particle storm ever measured on Mars, on 20 May 2024.</p>
+<p>The player is not alone. They pick one of four Space Kittens – <b>Nova</b> the botanist, <b>Cosmo</b> the scientist, <b>Rocket</b> the engineer or <b>Luna</b> the medic – who becomes their partner, explains each choice in plain words and never says "Game Over". Together they pack a rocket with only 7 crates, build a base, and then survive five Sols by doing hands-on missions: rubbing dust off solar panels, melting ice for water, stacking regolith bricks against radiation, and watching the Sun to forecast the next storm.</p>
+<p>Three bars must stay above zero: <b>⚡ Power</b>, <b>💨 Life Support</b> (air, water, food) and <b>❤️ Crew Health</b>. Every choice helps one bar and costs another – exactly the trade-off real mission planners face.</p>
+<div class="box blue">
+  <b>What did we build?</b> A playable web game (HTML, CSS and JavaScript) that opens in any browser with no account.<br>
+  <b>What problem does it solve?</b> Space weather, radiation and life support are invisible and abstract. Kids rarely see that a solar flare on the Sun can change the plans of a crew on Mars. We turn NASA's real event records into decisions a 7-year-old can make and feel.<br>
+  <b>How does it answer the challenge?</b> Kids run a Martian or lunar outpost; only 3 core resources; every choice has a cost; real NASA data is credited on screen; static data is never called "live"; failure leads to a friendly debrief, not punishment; and the game is replayable.<br>
+  <b>Who could it help?</b> Children aged 7–12, their teachers and their families. A Family/Class mode adds talk-about-it questions and a printable debrief for classrooms.
+</div>
+
+<h2>2. Project details</h2>
+<h3>2.1 How it works, step by step</h3>
+<div class="flow">
+  <div><b>1. Kitten</b>Pick a partner (each has a small perk)</div>
+  <div><b>2. Mission</b>Quick (5 Sols), Today's Space Weather, Infinite, Family</div>
+  <div><b>3. Site</b>Mars (Jezero area) or the Moon (south pole)</div>
+  <div><b>4. Build</b>Choose 7 of 11 crates and place them on the plot</div>
+  <div><b>5. Sols</b>Forecast → 2 missions → event → decide → reveal</div>
+  <div><b>6. Debrief</b>Certificate or "what to try next", with a chart</div>
+</div>
+<p><b>Phase 1 – Create Your Base.</b> Real rockets can't carry everything: the player picks 7 crates from 11 (5 station types). A live "daily balance" strip shows the cost of every choice before launch – for example a Power Station gives ⚡ +7 per Sol in full sunlight, while a Greenhouse gives 💨 +3 but uses ⚡ 2. The kitten warns ("No Shield? The crew will have nowhere to hide from storms") but never blocks.</p>
+<p><b>Phase 2 – The Sol loop</b> (five beats every Sol):</p>
+<ul>
+  <li><b>Forecast:</b> a "Space Weather News" banner shows the coming event, its danger (1–5 flames) and warning time. Without a Research Lab the danger shows only as "?".</li>
+  <li><b>Prepare:</b> 2 actions. The player taps a glowing station, enters it, picks a mission, drags every tool onto the workbench, reads a short "Your job / Take care / Remember" card, then plays a drag-and-drop mini-game.</li>
+  <li><b>Event:</b> the real event plays with its date and citation.</li>
+  <li><b>Decide:</b> for radiation events – <i>Shelter</i>, <i>Keep Working</i> or <i>Reinforce</i>; for power events – <i>Power Down</i> or <i>Keep Everything On</i>. The player can also press <b>Ask Earth</b> (see 2.3).</li>
+  <li><b>Reveal:</b> the bars move, a one-sentence "Because…" explains cause and effect, and "In real life…" shows the real measured number.</li>
+</ul>
+<h3>2.2 The main task: input → process → output</h3>
+<table>
+  <tr><th style="width:22%">Goes in</th><th style="width:43%">What the game does</th><th>Comes out</th></tr>
+  <tr><td>The real event for this Sol (date, flare class, danger level, warning time, Earth–Mars light delay) + the player's base and choices</td>
+      <td>Storm dose = base dose for the danger level × (1 − 25% per Shield level), × 0.15 if sheltering or × 0.6 if reinforcing. Then the overnight upkeep (⚡ −12, 💨 −10, ❤️ −1 on Mars, −2 on the Moon) and every station's daily effect, scaled by sunlight (clear 1.0, dust storm 0.2, lunar night 0).</td>
+      <td>New bar values, a "Because…" sentence, the real NASA measurement, Earth's (late) reply, Credits earned, and the history used for the debrief chart.</td></tr>
+</table>
+
+<h3>2.3 The five real events (Mars Quick Mission)</h3>
+<p>Each Sol is one real event from NASA records. The table under each card shows the exact values the game uses. All dates and measurements below were checked against the cited sources.</p>
+
+<div class="event">
+  <div class="head"><h3>Calm Sun – the baseline</h3><span class="sol">SOL 1</span></div>
+  <p>A quiet day to learn the controls. Even on calm days Mars is not safe: the thin atmosphere lets cosmic rays through.</p>
+  <div class="facts">
+    <div><b>Real data</b>NASA's Curiosity rover (RAD instrument) measured an average of about <b>0.67 millisieverts per day</b> on the Martian surface (Aug 2012 – Jun 2013).</div>
+    <div><b>In the game</b>Crew Health −1 every Sol from background radiation (−2 on the Moon, where Chang'e-4 measured about twice as much).</div>
+  </div>
+  <div class="src">Source: SwRI / NASA Curiosity RAD release – <a href="https://swri.org/node/9079">swri.org/node/9079</a>; Hassler et al. 2014, <i>Science</i>, doi:10.1126/science.1244797</div>
+</div>
+
+<div class="event">
+  <div class="head"><h3>24 October 2014 – the giant sunspot that didn't strike</h3><span class="sol">SOL 2</span></div>
+  <p>Sunspot region AR 2192, the largest of the solar cycle, fires an <b>X3.1</b> flare. It looks terrifying – but it launched no Earth-directed cloud of particles. The lesson: <b>forecasting is hard</b>. A kid who hides loses a day of work for nothing; a kid who did the "Watch the Sun" mission knows the storm won't follow.</p>
+  <div class="facts">
+    <div><b>Real data</b>X3.1 flare peaking on 24 Oct 2014; NASA describes it as a record-setting flare without a CME.</div>
+    <div><b>In the game</b>Danger 1/5 · warning 8 min · light delay ~13 min one way, so Earth's reply (26 min round trip) comes too late.</div>
+  </div>
+  <div class="src">Sources: NASA HelioWiki – <a href="https://heliowiki.smce.nasa.gov/wiki/index.php/A_Record-Setting_CMEless_Flare">A Record-Setting CMEless Flare</a>; NASA DONKI – <a href="https://kauai.ccmc.gsfc.nasa.gov/DONKI/">kauai.ccmc.gsfc.nasa.gov/DONKI</a></div>
+</div>
+
+<div class="event">
+  <div class="head"><h3>10 September 2017 – the storm that reached the ground</h3><span class="sol">SOL 3</span></div>
+  <p>An <b>X8.2</b> flare from sunspot AR 2673 sends a particle storm across the solar system. Within hours, particles reach the <b>surface</b> of Mars. This is the first real danger, and the first time the player learns that Earth is too far away to help.</p>
+  <div class="facts">
+    <div><b>Real data</b>Curiosity's RAD measured surface radiation <b>more than double</b> any level seen since landing in 2012, lasting more than two days. MAVEN saw a global aurora.</div>
+    <div><b>In the game</b>Danger 5/5 · warning 30 min · Mars was near the far side of the Sun, ~20 min one way, so the 40-minute round trip arrives after the storm.</div>
+  </div>
+  <div class="src">Sources: SwRI – <a href="https://www.swri.org/newsroom/press-releases/large-solar-storm-sparks-global-aurora-doubles-radiation-levels-mars">Large solar storm doubles radiation levels at Mars</a>; NASA SVS – <a href="https://svs.gsfc.nasa.gov/cgi-bin/details.cgi?aid=12706">A Powerful Sequence of Flares, Sept 2017</a></div>
+</div>
+
+<div class="event">
+  <div class="head"><h3>June 2018 – the dust storm that ended Opportunity</h3><span class="sol">SOL 4</span></div>
+  <p>A dust storm grows until it covers the whole planet. Sunlight drops so low that solar panels barely work – the same reason NASA's Opportunity rover went silent. The lesson moves from radiation to <b>energy</b>: save power, or keep the greenhouse running and risk the battery.</p>
+  <div class="facts">
+    <div><b>Real data</b>Opportunity's last contact was on <b>10 June 2018</b>. After more than 1,000 recovery commands, NASA declared the mission over on 13 Feb 2019.</div>
+    <div><b>In the game</b>Sunlight 0.2 (20%) for one Sol · warning 3 days · Earth is close (~4 min), so Ask Earth arrives in time.</div>
+  </div>
+  <div class="src">Source: NASA – <a href="https://www.nasa.gov/news-release/nasas-record-setting-opportunity-rover-mission-on-mars-comes-to-end">NASA's Record-Setting Opportunity Rover Mission on Mars Comes to End</a></div>
+</div>
+
+<div class="event">
+  <div class="head"><h3>20 May 2024 – the strongest storm ever measured on Mars</h3><span class="sol">SOL 5</span></div>
+  <p>The final test. An estimated <b>X12</b> flare on the far side of the Sun sends the biggest radiation surge Curiosity has ever recorded. Everything the player built – shields, shelter, stored power – is tested at once.</p>
+  <div class="facts">
+    <div><b>Real data</b>RAD measured <b>8,100 micrograys</b> in one event (a normal day is about 700) – like about 30 chest X-rays for an astronaut standing next to the rover.</div>
+    <div><b>In the game</b>Danger 5/5 · warning 20 min · light delay ~18 min one way, so Earth's reply arrives too late.</div>
+  </div>
+  <div class="src">Source: NASA JPL – <a href="https://www.jpl.nasa.gov/news/nasa-watches-mars-light-up-during-epic-solar-storm">NASA Watches Mars Light Up During Epic Solar Storm</a></div>
+</div>
+
+<p><b>The Moon site</b> uses its own real events: the <b>lunar night</b> (about 14 Earth days without sunlight, shortened to one Day in the game), the 10 September 2017 storm, and the <b>August 1972</b> storm that hit between Apollo 16 and Apollo 17 – NASA estimated that a moonwalker caught outside could have absorbed about 400 rem, which is why Artemis plans storm shelters. On the Moon, Earth is only 1.3 light-seconds away, so Ask Earth always arrives in time – a clear contrast with Mars. (Source: <a href="https://www.nationalacademies.org/read/10249/chapter/11">National Academies, Storms from the Sun</a>; Chang'e-4 lunar dose: Zhang et al. 2020, <i>Science Advances</i>, doi:10.1126/sciadv.aaz1334.)</p>
+
+<div class="box">
+  <b>Ask Earth – the distance lesson.</b> The game compares the round-trip light time on the event's real date with the event's warning time. On Mars, the reply is often still on its way when the storm hits: <i>"Earth's reply is still on its way. Real crews decide alone!"</i> The player still chooses, and Earth's advice appears afterwards in the Reveal. We removed an earlier "radio blackout" rule after checking that flare blackouts affect HF radio on Earth's day side, not deep-space links; the real radio silence – <b>Mars solar conjunction</b> – is used in Infinite mode instead.
+</div>
+
+<h3>2.4 Today's Space Weather – live NASA data</h3>
+<p>This mode asks NASA's DONKI database, through api.nasa.gov, for the <b>last 7 days</b> of solar particle events (SEP), coronal mass ejection analyses and solar flares. It turns what it finds into 3 Sols: a CME's real speed sets the danger and travel time, a flare's class sets its strength. Calm weeks are shown honestly as "Calm Sun this week!". If NASA can't be reached within 4 seconds, the badge changes from <b>LIVE</b> to <b>OFFLINE</b> and the game uses archive events instead – static data is never labelled live.</p>
+
+<h3>2.5 The 5 stations and 10 hands-on missions</h3>
+<p>Every mission costs 1 action, shows its gain and cost before you play, and cannot be failed: "Great!" gives the full effect, "Good!" gives 75%. Each ends with a result card and a "Real Science" fact with its source.</p>
+<table>
+  <tr><th>Station</th><th>Mission (how you play)</th><th>Effect</th><th>Real science behind it</th></tr>
+  <tr><td rowspan="2">Power</td><td>Dust Off the Panels – rub the dust off (Moon: turn a dial to face the low Sun)</td><td>⚡ +10 (+16 on a dusty Sol) · ❤️ −2</td><td>InSight's mission ended in 2022 as dust covered its panels; NASA tests tall vertical arrays (VSAT) for the lunar pole.</td></tr>
+  <tr><td>Charge the Battery – drag each wire to the same-colour socket</td><td>⚡ +12 · 💨 −4</td><td>Curiosity and Perseverance use nuclear power because Mars sunlight is weak and dusty.</td></tr>
+  <tr><td rowspan="2">Greenhouse</td><td>Plant &amp; Water – drag seeds into trays, hold the moisture in the green zone</td><td>Big harvest tomorrow · ❤️ +1 · 💨 −3</td><td>Martian soil holds perchlorate salts, so space farms use hydroponics; ISS crews first ate space-grown lettuce in Aug 2015 (Veggie).</td></tr>
+  <tr><td>Harvest – drag only the ripe food into the crate</td><td>💨 +8 (big: +16) · ❤️ +2/+3 · ⚡ −3</td><td>Plants clean the air and fresh food helps crew morale.</td></tr>
+  <tr><td rowspan="2">Water</td><td>Melt the Ice – drag ice into the heater, keep the temperature green</td><td>💨 +12 · ⚡ −8</td><td>Phoenix dug up ice in 2008; LCROSS found ice in the Moon's Cabeus crater in 2009; melting 1 kg takes ~334,000 J.</td></tr>
+  <tr><td>Recycle the Water – stack gravel, charcoal and membrane in the right order</td><td>💨 +6 · ❤️ +2 · ⚡ −3</td><td>The ISS recycles about 98% of its water (2023).</td></tr>
+  <tr><td rowspan="2">Radiation Shield</td><td>Stack Regolith Bricks – drag a brick onto each weak spot</td><td>🛡️ +1 (stays) · ❤️ −2 · ⚡ −4</td><td>NASA's 3D-Printed Habitat Challenge: build with local soil.</td></tr>
+  <tr><td>Fill the Water Wall – fill the tanks to the green band</td><td>🛡️ +1 tonight · 💨 −6</td><td>Hydrogen-rich water stops particles; Artemis crews would shelter behind supply bags in Orion.</td></tr>
+  <tr><td rowspan="2">Research Lab</td><td>Scan Rock Samples – match each rock's glow to a pattern</td><td>40 Credits · ice found → next melt +50%</td><td>Perseverance's SHERLOC and PIXL read rocks by their light.</td></tr>
+  <tr><td>Watch the Sun – turn two dials to match the Sun's wave</td><td>40 Credits · full forecast</td><td>NASA's Moon to Mars Space Weather Analysis Office and the DONKI database.</td></tr>
+</table>
+
+<h3>2.6 What it looks like</h3>
+<div class="figs">
+  <figure class="wide"><span class="wm">SI-GENERATED IMAGE</span><img src="../../assets/plot-mars.jpg" alt="Mars build plot"><figcaption>The Mars build plot. The game draws an 8×8 grid on it; the habitat sits in the centre and the player places 7 stations around it. (SI-generated with Higgsfield.)</figcaption></figure>
+  <figure><span class="wm">SI-GENERATED IMAGE</span><img src="../../assets/station-power.png" alt="Power Station"><figcaption>Power Station. Tapping a glowing station opens its room. (SI-generated with Higgsfield.)</figcaption></figure>
+  <figure><span class="wm">SI-GENERATED (CODE)</span><img src="../../assets/station-shield.svg" alt="Radiation Shield"><figcaption>Radiation Shield bunker – doubles as the storm shelter. (Drawn in SVG code with Claude.)</figcaption></figure>
+  <figure><span class="wm">SI-GENERATED IMAGE</span><img src="../../assets/kitten-2-blue.webp" alt="Cosmo the kitten"><figcaption>Cosmo, one of the four Space Kitten partners. (SI-generated character art.)</figcaption></figure>
+</div>
+
+<h3>2.7 Tools and technologies</h3>
+<ul>
+  <li><b>Languages:</b> HTML, CSS and plain JavaScript – no framework, no build step, no server. The whole game is static files.</li>
+  <li><b>Hosting:</b> GitHub Pages (free static hosting from the repository).</li>
+  <li><b>Graphics:</b> SVG (Scalable Vector Graphics, drawn in code) for the isometric base, the plots and most station art; PNG/WebP images for the AI-generated art.</li>
+  <li><b>Sound:</b> the Web Audio API built into browsers – all music and sound effects are synthesised in code; there are no audio files.</li>
+  <li><b>Data:</b> NASA DONKI and NASA Open APIs (api.nasa.gov) with the public DEMO_KEY, plus an archive file of events (data/events.js) that also works offline.</li>
+  <li><b>Testing:</b> an automated play-test script (tests/playtest.js) that plays every mode, both sites and every mission with real drag movements.</li>
+</ul>
+
+<h3>2.8 Benefits, goals and evidence</h3>
+<ul>
+  <li><b>Learning goals:</b> every choice has a cost; power depends on the environment; protection must be prepared early; distance forces independence.</li>
+  <li><b>Kid-safe design:</b> no account, no ads, no data collected; settings for read-aloud, text size and calm mode (no animations); a gentle debrief ("Nice try! Let's see what happened") instead of "Game Over".</li>
+  <li><b>Evidence (play-testing):</b> the automated play-test completed full 5-Sol games on Mars and the Moon, all 10 missions, Infinite mode for 12 Sols (with resupply and solar conjunction), Family mode and the live mode's offline fallback, with no errors. A careful base wins; a base with no shields that always keeps working loses to radiation; a base with 1 Power Station and 3 Greenhouses runs out of power on Sol 4. Play-testing found and fixed real bugs, such as a Battery mission that could become impossible and sliders that could freeze.</li>
+</ul>
+
+<h3>2.9 What works, what is limited, and what comes next</h3>
+<div class="box green"><b>Working now:</b> kitten select, 4 modes (Quick, Today's Space Weather, Infinite, Family), Mars and Moon sites, base building with a 7-crate cargo limit, 5 stations with 10 mini-games, real events with citations, Ask Earth, live DONKI with an offline fallback, APOD on the title screen, debrief with chart and certificate, Data Sources screen, settings, phone layout, per-screen music.</div>
+<div class="box red"><b>Limits (this is a prototype):</b>
+<ul>
+  <li>Bar sizes, station outputs and the storm-to-health scale are simplified for play; the game says so on its "Real vs. Simplified" screen.</li>
+  <li>The Earth–Mars light delays for archive events are approximate estimates, not yet taken from JPL Horizons.</li>
+  <li>The events in data/events-infinite.js (used only by Infinite mode) are not yet all checked against their sources.</li>
+  <li>The DONKI flare endpoint returned "Not Found" during the hackathon (13 Nov 2026); particle-storm and CME data worked. The Mars Rover Photos call may not answer and then hides quietly.</li>
+  <li>Art is mixed: some assets are SI-generated 3D renders and others are drawn in SVG code.</li>
+</ul></div>
+<div class="box blue"><b>Future plans:</b> health cards from NASA OSDR space-biology studies; a radiation ruler using ISS data from RadLab; real landing-site maps from Mars Trek and Moon Trek; exact light delays from JPL Horizons; a complete, consistent art set; Arabic language support.</div>
+
+<h2 class="pb">3. NASA data and resources</h2>
+<p>These are the NASA resources the game actually uses.</p>
+<table>
+  <tr><th style="width:24%">Resource</th><th style="width:30%">Link</th><th>How we used it</th></tr>
+  <tr><td><b>DONKI</b> – Space Weather Database Of Notifications, Knowledge, Information (NASA GSFC / CCMC)</td><td><a href="https://kauai.ccmc.gsfc.nasa.gov/DONKI/">kauai.ccmc.gsfc.nasa.gov/DONKI</a></td><td>(1) Archive: dates, flare classes and event types of the Quick Mission events, shown with an ARCHIVE badge and citation. (2) Live: the Today's Space Weather mode calls DONKI SEP, CMEAnalysis and FLR for the last 7 days and builds 3 Sols from them (CME speed → danger and travel time; flare class → strength).</td></tr>
+  <tr><td><b>NASA Open APIs</b></td><td><a href="https://api.nasa.gov/">api.nasa.gov</a></td><td>Gateway for the live DONKI calls (public DEMO_KEY, answers cached in the browser for one day). Also <b>APOD</b> (Astronomy Picture of the Day) shown on the title screen as "Today's real space picture" with its credit, and <b>Mars Rover Photos</b> for a real Curiosity photo on Mars reveal cards when the service answers.</td></tr>
+  <tr><td><b>Curiosity RAD</b> (Radiation Assessment Detector), Mars Science Laboratory</td><td><a href="https://swri.org/node/9079">swri.org/node/9079</a>; doi:10.1126/science.1244797</td><td>Mars background dose (~0.67 mSv/day) → Crew Health upkeep; Sol 1 "real number".</td></tr>
+  <tr><td>NASA JPL – 20 May 2024 storm</td><td><a href="https://www.jpl.nasa.gov/news/nasa-watches-mars-light-up-during-epic-solar-storm">jpl.nasa.gov/news/…epic-solar-storm</a></td><td>Sol 5 event: 8,100 micrograys, X12 flare, largest surge since 2012.</td></tr>
+  <tr><td>SwRI / NASA – 10 Sept 2017 storm</td><td><a href="https://www.swri.org/newsroom/press-releases/large-solar-storm-sparks-global-aurora-doubles-radiation-levels-mars">swri.org press release</a>; <a href="https://svs.gsfc.nasa.gov/cgi-bin/details.cgi?aid=12706">NASA SVS 12706</a></td><td>Sol 3 event: X8.2 flare, surface radiation more than doubled.</td></tr>
+  <tr><td>NASA – Opportunity mission end</td><td><a href="https://www.nasa.gov/news-release/nasas-record-setting-opportunity-rover-mission-on-mars-comes-to-end">nasa.gov news release</a></td><td>Sol 4 event: 2018 global dust storm, last contact 10 June 2018.</td></tr>
+  <tr><td>NASA HelioWiki – Oct 2014 flare</td><td><a href="https://heliowiki.smce.nasa.gov/wiki/index.php/A_Record-Setting_CMEless_Flare">heliowiki.smce.nasa.gov</a></td><td>Sol 2 event: X3.1 flare from AR 2192 without an Earth-directed CME.</td></tr>
+  <tr><td>NASA Moon and Mars facts; Artemis</td><td><a href="https://science.nasa.gov/moon/">science.nasa.gov/moon</a>; <a href="https://science.nasa.gov/mars/">science.nasa.gov/mars</a></td><td>Lunar night length; Mars receives ~43% of Earth's sunlight (crate info cards); storm shelters.</td></tr>
+  <tr><td>NASA mission facts used in "Real Science" cards</td><td><a href="https://science.nasa.gov/mission/insight/">InSight</a>, <a href="https://science.nasa.gov/mission/phoenix/">Phoenix</a>, <a href="https://science.nasa.gov/mission/mars-2020-perseverance/">Perseverance</a>, <a href="https://www.nasa.gov/missions/station/growing-plants-in-space/">Veggie</a></td><td>One fact and source per mission (see table 2.5): dusty panels, ice, hydroponics, rock analysis, ISS water recycling, 3D-printed habitats.</td></tr>
+</table>
+<p class="small">Data preparation: we read each event's date and class from DONKI and NASA/JPL news, set a danger level (1–5) and warning time, estimated the one-way Earth–Mars light time for that date, and stored each event with its citation and a "verified" flag in data/events.js. Live DONKI data is converted in the browser at play time.</p>
+
+<h2>4. Other resources and source credits</h2>
+<table>
+  <tr><th style="width:28%">Resource</th><th style="width:30%">Link</th><th>How we used it</th></tr>
+  <tr><td>Chang'e-4 Lunar Lander Neutrons and Dosimetry (CNSA) – Zhang et al. 2020, <i>Science Advances</i></td><td>doi:10.1126/sciadv.aaz1334</td><td>Moon surface dose (~1,369 µSv/day), used for the Moon's higher health upkeep.</td></tr>
+  <tr><td>Canadian Space Agency – youth and educator resources, Food Production in Space</td><td><a href="https://www.asc-csa.gc.ca/eng/youth-educators/">asc-csa.gc.ca/eng/youth-educators</a></td><td>Seed choices and crop background for the Greenhouse; "For grown-ups" link in Family mode. Credited to CSA, not NASA.</td></tr>
+  <tr><td>National Academies – <i>Storms from the Sun</i> (2002)</td><td><a href="https://www.nationalacademies.org/read/10249/chapter/11">nationalacademies.org</a></td><td>August 1972 storm facts for the Moon site.</td></tr>
+  <tr><td>Google Fonts – Baloo 2 and Lilita One (SIL Open Font License)</td><td><a href="https://fonts.google.com/">fonts.google.com</a></td><td>Game fonts.</td></tr>
+  <tr><td>Higgsfield (GPT Image 2.6)</td><td><a href="https://higgsfield.ai/">higgsfield.ai</a></td><td>Generated 5 images: Mars build plot, Power Station, rover, Mars and Moon pictures.</td></tr>
+  <tr><td>Emoji</td><td>System emoji fonts</td><td>Icons on bars, buttons and mini-game props.</td></tr>
+  <tr><td>GitHub and GitHub Pages</td><td><a href="https://github.com/">github.com</a></td><td>Code repository and free hosting.</td></tr>
+</table>
+
+<h2>5. AI and SI use</h2>
+<p>Yes, we used AI/SI tools. The idea for the game – the kittens, the real-event Sols, the stations and missions and the trade-offs – came from our team; SI tools helped us build it faster.</p>
+<table>
+  <tr><th style="width:24%">Tool</th><th style="width:36%">Task</th><th>Affected work</th></tr>
+  <tr><td><b>Claude</b> (Anthropic), a large language model</td><td>Wrote and debugged most of the game code from our design; drew the SVG art in code; synthesised the music in code; wrote the automated play-test; helped format our design document and this PDF; helped check facts against sources.</td><td>js/game.js, css/style.css, index.html, data/events-infinite.js, tests/playtest.js, assets/*.svg. Acknowledged in the code comments and commit messages ("Co-Authored-By: Claude").</td></tr>
+  <tr><td><b>Higgsfield</b> (GPT Image 2.6), image generator</td><td>Generated 5 game images from our written style prompt.</td><td>assets/plot-mars.jpg, station-power.png, rover.png, site-mars.png, site-moon.png. Marked "SI-GENERATED IMAGE" in this PDF.</td></tr>
+  <tr><td>AI image tool used by the team</td><td>Generated the four Space Kitten characters and the Moon plot reference image.</td><td>assets/kitten-*.webp, assets/plot-moon.webp. Marked "SI-GENERATED IMAGE" in this PDF.</td></tr>
+</table>
+<p>No SI-generated content uses or changes NASA logos, flags or mission identifiers. The game's Data Sources screen also states that the code was written with help from Claude and the art was made with AI image tools.</p>
+
+</body>
+</html>
