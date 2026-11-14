@@ -765,6 +765,7 @@
     $("#modal").innerHTML = `<div class="room"><aside class="room-left">` +
       `<div class="room-head"><span class="room-art">${artHTML(m.art, m.emoji)}</span><h2 class="int-title">${m.name}</h2></div>` +
       `<p class="cat-line">${kittenImg(S.kitten, "mini")}<span class="chip">${m.talk.split("!")[0]}!</span></p>` +
+      `<div class="room-actions">Actions left today: ${[0, 1].map((i) => `<span class="aseg ${i < S.actionsUsed ? "used" : ""}"></span>`).join("")} <b>${ACTIONS_PER_SOL - S.actionsUsed}</b></div>` +
       `<div class="room-missions">${cards}</div>` +
       `<button class="btn btn-blue" data-action="close-overlay">◀ Back outside</button></aside>` +
       `<section class="room-right"><div id="room-work" class="room-work"><div class="tool-board">${tools}</div><div class="slot bench" id="bench"><span>🛠️ Workbench</span><small>drag a glowing tool here</small></div><p class="pick-hint" id="pick-hint">👈 Pick a mission</p></div></section></div>`;
@@ -774,7 +775,7 @@
   let mg = null; // { mid, mistakes, finish(quality) }
   function startMission(mid) {
     if (missionBlock(mid)) return;
-    if (!$("#room-work")) enterStation(MISSIONS[mid].station, true);
+    if (!$("#room-work .tool-board")) enterStation(MISSIONS[mid].station, true);
     const work = $("#room-work");
     document.querySelectorAll(".room-missions .mcard2").forEach((b) => b.classList.toggle("active", b.dataset.id === mid));
     // light up this mission's tools; the player drags one onto the workbench to begin
@@ -1153,7 +1154,7 @@
       `<p class="cat-line">${kittenImg(S.kitten, "mini cheer")}<span>${quality === "great" ? "Neat job, partner!" : "Good work! A neater job next time gives the full effect."}</span></p>` +
       deltasHTML(before) + `<p class="because"><b>Because…</b> ${r.because}</p><p class="small">🪙 +${r.credits} Credits</p>` +
       `<details class="real"><summary>🔬 Real Science</summary><p>${mi.real}</p><p class="citation">Source: <a href="${mi.src.url}" target="_blank" rel="noopener">${mi.src.text}</a></p></details>` +
-      `<div class="modal-actions"><button class="btn btn-go" data-action="close-overlay">Back to the base ▶</button></div></div>`;
+      `<p class="next-hint">${S.actionsUsed < ACTIONS_PER_SOL ? "👈 You have 1 action left: pick another mission here, or go back outside." : "Both actions used today! Go back outside and press END " + S.unit.toUpperCase() + "."}</p></div>`;
     mg = null;
     if (checkLose()) return;
     if (S.actionsUsed >= ACTIONS_PER_SOL) say("Both actions used! Press END " + S.unit.toUpperCase() + " when you're ready.", "happy");

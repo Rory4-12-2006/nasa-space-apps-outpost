@@ -903,3 +903,6 @@ html, body { height: 100%; overflow: hidden; }
 .streaks { pointer-events: none; }
 .dome { flex-shrink: 0; }
 .weak { min-width: 56px !important; min-height: 56px !important; width: 56px; height: 56px; }
+.room-actions { display: flex; align-items: center; gap: 6px; font-weight: 800; background: #f3f6ff; border-radius: 12px; padding: 6px 10px; }
+.room-actions .aseg { border-color: var(--accent); background: #fff; } .room-actions .aseg.used { background: #ffcf3a; }
+.next-hint { font-weight: 800; font-size: 1.1rem; background: #fff3c4; border-radius: 12px; padding: 10px 12px; margin-top: 12px; }
