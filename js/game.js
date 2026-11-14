@@ -142,7 +142,7 @@
     return ARTOK.has(name) ? `<img src="assets/${name}.png" alt="">` : `<span class="emoji">${emoji}</span>`;
   }
   function kittenSrc(id) {
-    return ARTOK.has("kitten-" + id) ? "assets/kitten-" + id + ".png" : "docs/design/ref/" + KITTEN_REF[KITTENS[id].img] + ".webp";
+    return ARTOK.has("kitten-" + id) ? "assets/kitten-" + id + ".png" : "assets/" + KITTEN_REF[KITTENS[id].img] + ".webp";
   }
   function kittenImg(id, cls) { return `<img class="kimg ${cls || ""}" src="${kittenSrc(id || "nova")}" alt="${KITTENS[id || "nova"].name}">`; }
   function fillArt(root) {
