@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" preserveAspectRatio="xMidYMid slice">
+<rect width="1280" height="720" fill="#E6F6E2"/>
+<path d="M0 0 L1280 0 L1280 60 L0 60 Z" fill="#C3E6C0"/>
+<g stroke="#2B1E1A" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"><rect x="760" y="70" width="440" height="230" rx="40" fill="#1B1F3A"/></g>
+<circle cx="1010" cy="120" r="34" fill="#4FA3E0" stroke="#2B1E1A" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/><circle cx="880" cy="90" r="3" fill="#fff"/><circle cx="1120" cy="200" r="3" fill="#fff"/>
+<path d="M764 250 Q860 200 960 235 Q1070 190 1196 230 L1196 296 L764 296 Z" fill="#6B7178"/>
+<path d="M764 270 Q900 245 1040 262 Q1120 250 1196 258 L1196 296 L764 296 Z" fill="#9AA0A6"/>
+<g stroke="#2B1E1A" stroke-width="5" stroke-linejoin="round" stroke-linecap="round" fill="none"><rect x="760" y="70" width="440" height="230" rx="40"/><path d="M980 70 L980 300"/></g>
+<path d="M0 470 L1280 470 L1280 720 L0 720 Z" fill="#B79A7A"/>
+<path d="M0 470 L1280 470 L1280 500 L0 500 Z" fill="#977a5c"/>
+<g stroke="#977a5c" stroke-width="4"><path d="M160 500 L60 720 M480 500 L440 720 M800 500 L840 720 M1120 500 L1220 720"/></g>
+<g stroke="#2B1E1A" stroke-width="5" stroke-linejoin="round" stroke-linecap="round" fill="none"><path d="M0 470 L1280 470"/></g>
+<g stroke="#2B1E1A" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"><rect x='60' y='150' width='620' height='26' rx='8' fill='#F4F1EC'/><rect x='60' y='310' width='620' height='26' rx='8' fill='#F4F1EC'/><path d='M100 150 Q110 100 130 96 Q140 120 128 150 Z M220 150 Q230 90 260 88 Q270 120 250 150 Z M360 150 Q372 104 392 100 Q400 126 388 150 Z M500 150 Q512 96 540 92 Q548 124 530 150 Z M140 310 Q150 250 176 246 Q186 280 168 310 Z M300 310 Q314 256 340 252 Q350 286 330 310 Z M460 310 Q470 262 496 258 Q504 288 488 310 Z' fill='#5DBB63'/><circle cx='252' cy='118' r='9' fill='#F25F5C'/><circle cx='334' cy='276' r='9' fill='#F25F5C'/><rect x='60' y='40' width='620' height='20' rx='8' fill='#F49AC1'/><rect x='60' y='200' width='620' height='20' rx='8' fill='#F49AC1'/></g><g fill='#F49AC1' opacity='.25'><path d='M60 60 L680 60 L700 150 L40 150 Z'/><path d='M60 220 L680 220 L700 310 L40 310 Z'/></g>
+</svg>

@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" preserveAspectRatio="xMidYMid slice">
+<rect width="1280" height="720" fill="#F6DCCB"/>
+<path d="M0 0 L1280 0 L1280 60 L0 60 Z" fill="#E8BCA0"/>
+<g stroke="#2B1E1A" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"><rect x="760" y="70" width="440" height="230" rx="40" fill="#1B1F3A"/></g>
+<circle cx="1010" cy="120" r="34" fill="#4FA3E0" stroke="#2B1E1A" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/><circle cx="880" cy="90" r="3" fill="#fff"/><circle cx="1120" cy="200" r="3" fill="#fff"/>
+<path d="M764 250 Q860 200 960 235 Q1070 190 1196 230 L1196 296 L764 296 Z" fill="#6B7178"/>
+<path d="M764 270 Q900 245 1040 262 Q1120 250 1196 258 L1196 296 L764 296 Z" fill="#9AA0A6"/>
+<g stroke="#2B1E1A" stroke-width="5" stroke-linejoin="round" stroke-linecap="round" fill="none"><rect x="760" y="70" width="440" height="230" rx="40"/><path d="M980 70 L980 300"/></g>
+<path d="M0 470 L1280 470 L1280 720 L0 720 Z" fill="#A9502F"/>
+<path d="M0 470 L1280 470 L1280 500 L0 500 Z" fill="#86402a"/>
+<g stroke="#86402a" stroke-width="4"><path d="M160 500 L60 720 M480 500 L440 720 M800 500 L840 720 M1120 500 L1220 720"/></g>
+<g stroke="#2B1E1A" stroke-width="5" stroke-linejoin="round" stroke-linecap="round" fill="none"><path d="M0 470 L1280 470"/></g>
+<g stroke="#2B1E1A" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"><g fill='#D9774B'><rect x='0' y='60' width='160' height='70'/><rect x='160' y='60' width='160' height='70'/><rect x='320' y='60' width='160' height='70'/><rect x='480' y='60' width='160' height='70'/><rect x='80' y='130' width='160' height='70'/><rect x='240' y='130' width='160' height='70'/><rect x='400' y='130' width='160' height='70'/><rect x='560' y='130' width='120' height='70'/><rect x='0' y='130' width='80' height='70'/><rect x='0' y='200' width='160' height='70'/><rect x='160' y='200' width='160' height='70'/><rect x='320' y='200' width='160' height='70'/><rect x='480' y='200' width='160' height='70'/></g><rect x='60' y='320' width='260' height='150' rx='16' fill='#4FA3E0'/><path d='M60 390 L320 390' stroke='#BFE6EF'/><rect x='400' y='330' width='200' height='140' rx='14' fill='#6B7178'/><path d='M430 360 L570 360 M430 400 L570 400' fill='none'/><circle cx='500' cy='440' r='14' fill='#FFC83D'/></g>
+</svg>

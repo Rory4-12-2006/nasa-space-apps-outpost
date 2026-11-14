@@ -85,7 +85,7 @@
   };
   const STATION_MISSIONS = { power: ["dust", "battery"], greenhouse: ["plant", "harvest"], water: ["melt", "recycle"], shield: ["bricks", "wall"], lab: ["scan", "sun"] };
 
-  const ART = ["logo", "rover", "bg-mars", "bg-moon", "habitat", "station-power", "station-greenhouse", "station-water", "station-shield", "station-lab",
+  const ART = ["interior-power-mars", "interior-greenhouse-mars", "interior-water-mars", "interior-shield-mars", "interior-lab-mars", "interior-power-moon", "interior-greenhouse-moon", "interior-water-moon", "interior-shield-moon", "interior-lab-moon", "logo", "rover", "bg-mars", "bg-moon", "habitat", "station-power", "station-greenhouse", "station-water", "station-shield", "station-lab",
     "site-mars", "site-moon", "card-quick", "card-endless", "card-live", "card-family",
     "kitten-nova", "kitten-cosmo", "kitten-rocket", "kitten-luna"];
   const ARTOK = new Set();
@@ -750,6 +750,8 @@
     const ov = $("#overlay");
     ov.className = ov.className.replace(/\bint-\w+/g, "").trim() + " int-" + id;
     if (!keepWork) sfx.build();
+    const iname = "interior-" + id + "-" + S.site;
+    ov.style.backgroundImage = ARTOK.has(iname) ? `url("${artURL(iname)}")` : "";
     const chips = (txt, cls) => txt.split(" · ").map((t) => `<span class="chip ${cls}">${t}</span>`).join("");
     const cards = STATION_MISSIONS[id].map((mid) => {
       const mi = MISSIONS[mid], block = missionBlock(mid);
@@ -759,13 +761,13 @@
         (block ? `<span class="blocked">${block}</span>` : `<span class="small">⚡ uses 1 action</span>`) + `</button>`;
     }).join("");
     const tools = STATION_MISSIONS[id].map((mid) => `<div class="tool-group" data-mid="${mid}"><div class="tg-name">${mName(mid)}</div><div class="tools">` +
-      TOOLS[toolKey(mid)].map(([e, n]) => `<div class="tool"><span>${e}</span><small>${n}</small></div>`).join("") + `</div></div>`).join("");
+      TOOLS[toolKey(mid)].map(([e, n]) => `<div class="tool drag" data-mid="${mid}"><span>${e}</span><small>${n}</small></div>`).join("") + `</div></div>`).join("");
     $("#modal").innerHTML = `<div class="room"><aside class="room-left">` +
       `<div class="room-head"><span class="room-art">${artHTML(m.art, m.emoji)}</span><h2 class="int-title">${m.name}</h2></div>` +
       `<p class="cat-line">${kittenImg(S.kitten, "mini")}<span class="chip">${m.talk.split("!")[0]}!</span></p>` +
       `<div class="room-missions">${cards}</div>` +
       `<button class="btn btn-blue" data-action="close-overlay">◀ Back outside</button></aside>` +
-      `<section class="room-right"><div id="room-work" class="room-work"><div class="tool-board">${tools}</div><p class="pick-hint">👈 Pick a mission to use its tools</p></div></section></div>`;
+      `<section class="room-right"><div id="room-work" class="room-work"><div class="tool-board">${tools}</div><div class="slot bench" id="bench"><span>🛠️ Workbench</span><small>drag a glowing tool here</small></div><p class="pick-hint" id="pick-hint">👈 Pick a mission</p></div></section></div>`;
   }
 
   // ===================== mini-game engines E1–E5 =====================
@@ -774,11 +776,25 @@
     if (missionBlock(mid)) return;
     if (!$("#room-work")) enterStation(MISSIONS[mid].station, true);
     const work = $("#room-work");
-    document.querySelectorAll(".room-missions .mcard2").forEach((b) => { b.classList.toggle("active", b.dataset.id === mid); if (b.dataset.id !== mid) b.disabled = true; });
-    // light up this mission's tools first, then the workbench opens
-    const grp = work.querySelector(`.tool-group[data-mid="${mid}"]`);
-    if (grp) grp.classList.add("on");
+    document.querySelectorAll(".room-missions .mcard2").forEach((b) => b.classList.toggle("active", b.dataset.id === mid));
+    // light up this mission's tools; the player drags one onto the workbench to begin
+    work.querySelectorAll(".tool-group").forEach((g) => g.classList.toggle("on", g.dataset.mid === mid));
+    work.querySelector("#bench").classList.add("ready");
+    work.querySelector("#pick-hint").textContent = "✋ Drag a glowing tool onto the workbench!";
     sfx.pop();
+    if (work.dataset.wired) return;
+    work.dataset.wired = "1";
+    dragToSlot(work, (item, slot) => {
+      const chosen = (document.querySelector(".room-missions .mcard2.active") || {}).dataset;
+      if (!slot.classList.contains("bench") || !chosen || item.dataset.mid !== chosen.id) { sfx.spark(); return; }
+      openWorkbench(chosen.id);
+    }, ".tool.drag");
+  }
+  function openWorkbench(mid) {
+    const work = $("#room-work");
+    document.querySelectorAll(".room-missions .mcard2").forEach((b) => { if (b.dataset.id !== mid) b.disabled = true; });
+    $("#bench").classList.add("fill");
+    sfx.build();
     mg = { mid, mistakes: 0, over: false };
     setTimeout(() => {
       work.innerHTML = `<div class="mg-head"><h2>${mEmoji(mid)} ${mName(mid)}</h2><div class="mg-help" id="mg-help"></div></div><div class="mg ${S.site}" id="mg"></div>` +
@@ -793,11 +809,12 @@
   const q = () => (mg.mistakes ? "good" : "great");
 
   // E1: drag (or tap-then-tap) items into slots. onDrop(item, slot) returns true if accepted.
-  function dragToSlot(root, onDrop) {
+  function dragToSlot(root, onDrop, itemSel) {
+    itemSel = itemSel || ".drag:not(.tool)";
     let sel = null, ghost = null, src = null;
     const clear = () => { if (ghost) ghost.remove(); ghost = null; if (src) src.classList.remove("dragging"); src = null; };
     root.addEventListener("pointerdown", (e) => {
-      const it = e.target.closest(".drag");
+      const it = e.target.closest(itemSel);
       if (!it || it.classList.contains("used")) return;
       e.preventDefault();
       src = it; it.classList.add("dragging");
@@ -815,7 +832,7 @@
         const item = src;
         clear();
         if (moved.d < 8) { // a tap: select, then tap a slot
-          root.querySelectorAll(".drag.sel").forEach((x) => x.classList.remove("sel"));
+          root.querySelectorAll(itemSel + ".sel").forEach((x) => x.classList.remove("sel"));
           sel = item; item.classList.add("sel"); return;
         }
         if (slot && root.contains(slot)) onDrop(item, slot);
@@ -1154,6 +1171,7 @@
     const ov = $("#overlay");
     ov.classList.remove("hidden", "flash", "redsky", "dark");
     if (kind !== "station") ov.className = ov.className.replace(/\bint-\w+/g, "").trim();
+    if (kind !== "station") ov.style.backgroundImage = "";
     ov.dataset.kind = kind || "";
   }
   function endSol() {
