@@ -725,8 +725,8 @@
     if (S.actionsUsed >= ACTIONS_PER_SOL) return "No actions left";
     if (mid === "harvest" && !S.crop) return "Trays are empty – plant first";
     if (mid === "harvest" && S.plantedSol === S.sol) return "Still growing – harvest tomorrow";
-    if (mid === "bricks" && shieldLevel() >= SHIELD_MAX) return "Shield is already at 3";
-    if (mid === "wall" && shieldLevel() >= SHIELD_MAX) return "Shield is already at 3";
+    if (mid === "bricks" && shieldLevel() >= SHIELD_MAX) return "🛡️ Shield is full (3 of 3)";
+    if (mid === "wall" && shieldLevel() >= SHIELD_MAX) return "🛡️ Shield is full (3 of 3)";
     return "";
   }
   // Tools shown on the right side of each station room (grey until their mission is picked)
@@ -804,7 +804,7 @@
   const INTRO = {
     dust: { goal: "Rub the orange dust off all 3 solar panels.", care: "Clean every corner: dust left behind blocks sunlight.", tip: "Over 90% clean = Great!" },
     turn: { goal: "Turn the tall panel to face the low Sun.", care: "The Sun is low at the Moon's pole, so the panel must tilt a lot.", tip: "Hold the needle in the green zone for 1 second." },
-    battery: { goal: "Connect each wire to the socket of the same colour.", care: "Wrong colours or crossing wires make a spark.", tip: "Yellow to yellow, blue to blue, green to green." },
+    battery: { goal: "Connect each wire to the socket of the same colour.", care: "A wire in the wrong colour socket makes a spark.", tip: "Yellow to yellow, blue to blue, green to green." },
     plant: { goal: "Plant a seed in all 4 trays, then water them.", care: "Too much water turns the gauge red and drowns the roots.", tip: "Stop in the green zone and hold it there." },
     harvest: { goal: "Put only the ripe food in the crate.", care: "Small, pale plants are not ready yet: leave them.", tip: "Big and colourful = ripe." },
     melt: { goal: "Put 3 ice blocks in the heater, then melt them.", care: "Red means boiling: steam escapes and water is lost.", tip: "Keep the temperature in the green zone until the ice melts." },
@@ -901,10 +901,11 @@
         hold.style.width = p * 100 + "%";
         if (p >= 1) { done = true; opts.onGreen(); return; }
       } else { t0 = null; hold.style.width = "0"; }
-      raf = requestAnimationFrame(tick);
     };
-    raf = requestAnimationFrame(tick);
-    return { input: inp, stop: () => { done = true; cancelAnimationFrame(raf); } };
+    // a steady timer (not requestAnimationFrame) so the slider keeps working even if the tab is busy or in the background
+    raf = setInterval(() => { if (done || !el.isConnected) { clearInterval(raf); return; } tick(); }, 40);
+    inp.addEventListener("input", tick);
+    return { input: inp, stop: () => { done = true; clearInterval(raf); } };
   }
   // E3: connect wires (colour to colour). Wrong socket sparks and bounces back.
   function wires(el, colors, onAll) {
@@ -933,9 +934,9 @@
         const s = under && under.closest && under.closest(".socket");
         if (!s) return;
         const y2 = Number(s.getAttribute("y")) + 16;
-        if (s.dataset.c !== c || linkCross(y1, y2)) {
+        if (s.dataset.c !== c) {
           sfx.spark(); s.classList.add("spark"); setTimeout(() => s.classList.remove("spark"), 500);
-          mistake(s.dataset.c !== c ? "Bzzt! Match the colours." : "Bzzt! Wires must not cross. Try another order.");
+          mistake("Bzzt! Match the colours.");
           return;
         }
         done[c] = { y1, y2 };
@@ -969,10 +970,11 @@
     let lastM = 0;
     const rub = (e) => {
       if (!down) return;
-      const c = document.elementFromPoint(e.clientX, e.clientY);
-      if (!c || c.tagName !== "CANVAS" || !cvs.includes(c)) return;
+      if (!el.isConnected) return;
+      const c = cvs.find((cv) => { const b = cv.getBoundingClientRect(); return e.clientX >= b.left - 10 && e.clientX <= b.right + 10 && e.clientY >= b.top - 10 && e.clientY <= b.bottom + 10; });
+      if (!c) return;
       const r = c.getBoundingClientRect(), x = c.getContext("2d");
-      x.beginPath(); x.arc((e.clientX - r.left) * 160 / r.width, (e.clientY - r.top) * 110 / r.height, 16, 0, 7); x.fill();
+      x.beginPath(); x.arc((e.clientX - r.left) * 160 / r.width, (e.clientY - r.top) * 110 / r.height, 20, 0, 7); x.fill();
       if (performance.now() - lastM > 120) { lastM = performance.now(); measure(); }
     };
     el.addEventListener("pointerdown", (e) => { down = true; e.preventDefault(); rub(e); });
@@ -997,7 +999,7 @@
     },
     // P2 Charge the Battery (E3)
     battery(el) {
-      help("Drag each wire to the socket of the same colour. Don't cross the wires!");
+      help("Drag each wire to the socket of the same colour.");
       wires(el, ["#f5c518", "#3f8fe0", "#3fbf6a"], () => { help("Battery charged! 🔋"); mg.finish(q()); });
     },
     // G1 Plant & Water (E1 then E2)
@@ -1145,9 +1147,9 @@
           const p = Math.min(1, (performance.now() - t0) / 1000); $("#sun-h").style.width = p * 100 + "%";
           if (p >= 1) { done = true; help("Matched! The full forecast is ready. 🔭"); mg.finish(q()); return; }
         } else { t0 = null; $("#sun-h").style.width = "0"; }
-        requestAnimationFrame(tick);
       };
-      requestAnimationFrame(tick);
+      const iv = setInterval(() => { if (done || !document.getElementById("d-a")) { clearInterval(iv); return; } tick(); }, 40);
+      el.querySelectorAll("input").forEach((i) => i.addEventListener("input", tick));
     }
   };
 
@@ -1259,7 +1261,12 @@
     const roundTrip = ev.lightDelayMinutes * 2;
     $("#earth-anim").classList.remove("hidden");
     $("#earth-clock").textContent = "⏱ " + fmtMinutes(roundTrip) + " round trip";
-    if (!ev.earthAdvice) { reply.textContent = "Mission Control has no advice for this one."; return; }
+    if (!ev.earthAdvice) {
+      // events without saved advice get a sensible default so Ask Earth always teaches something
+      ev.earthAdvice = isRad(ev) && ev.dangerTier <= 1 ? { choice: "work", text: "A flare is mostly light. If no particle storm follows, keep working." }
+        : isRad(ev) ? { choice: "shelter", text: "Particles are coming. Get the crew into the shelter." }
+        : { choice: "powerdown", text: "Save power until the Sun comes back." };
+    }
     if (roundTrip <= ev.warningMinutes) {
       S.askedEarth = "intime";
       reply.innerHTML = `✅ Reply arrived in ${fmtMinutes(roundTrip)}, in time! Mission Control says: <b>"${ev.earthAdvice.text}"</b>`;
