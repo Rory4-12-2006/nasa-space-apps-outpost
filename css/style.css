@@ -916,3 +916,10 @@ html, body { height: 100%; overflow: hidden; }
 .intro-card .btn { align-self: center; font-size: 1.4rem; }
 .mg-tip { background: #fff8d6; border-radius: 12px; padding: 6px 12px; font-weight: 800; margin: 6px 0 0; }
 .bench-tools { display: flex; gap: 8px; font-size: 2.2rem; }
+
+/* Higgsfield Mars board has no painted grid, so draw the tiles */
+#grid .tile.painted { fill: rgba(255, 236, 214, .07); stroke: rgba(255, 245, 230, .45); stroke-width: 1.5; }
+#grid .tile.painted.taken { fill: rgba(255, 255, 255, .12); }
+#grid .tile.painted.can-place { stroke: #fff6a8; stroke-width: 3; fill: rgba(255, 240, 140, .35); }
+#grid .tile.painted.station-tile { fill: rgba(120, 255, 240, .22); stroke: #8ff7ff; stroke-width: 3; }
+#grid .tile.painted.selected { fill: rgba(140, 220, 255, .5); }

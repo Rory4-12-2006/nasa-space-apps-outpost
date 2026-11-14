@@ -463,7 +463,7 @@
   // ===================== isometric grid 8×8 =====================
   const SVGNS = "http://www.w3.org/2000/svg";
   // The 8x8 plot is drawn to match the diamond painted in assets/plot-<site> (1280x714).
-  const PLOT = { mars: { img: "assets/plot-mars.jpg", TW: 117, TH: 67, X0: 640, Y0: 110 }, moon: { img: "assets/plot-moon.webp", TW: 115, TH: 62.75, X0: 640, Y0: 150 } };
+  const PLOT = { mars: { img: "assets/plot-mars.jpg", TW: 117, TH: 66, X0: 640, Y0: 96, drawGrid: true }, moon: { img: "assets/plot-moon.webp", TW: 115, TH: 62.75, X0: 640, Y0: 150 } };
   const N = 8;
   let TW = 117, TH = 67, X0 = 640, Y0 = 110;
   const K = 1.4; // sprite scale for the 1280-wide plot
@@ -490,7 +490,7 @@
       const station = S.phase === "sol" && mod && mod !== "habitat";
       const poly = svgEl("polygon", {
         points: `${t.x},${t.y} ${t.x + TW / 2},${t.y + TH / 2} ${t.x},${t.y + TH} ${t.x - TW / 2},${t.y + TH / 2}`,
-        class: "tile" + (mod ? " taken" : "") + (can ? " can-place" : "") + (station ? " station-tile" : "") + (S.selectedTile === key ? " selected" : ""),
+        class: "tile" + (P.drawGrid ? " painted" : "") + (mod ? " taken" : "") + (can ? " can-place" : "") + (station ? " station-tile" : "") + (S.selectedTile === key ? " selected" : ""),
         "data-key": key
       });
       if (can || (S.phase === "build" && mod && mod !== "habitat") || station) {
