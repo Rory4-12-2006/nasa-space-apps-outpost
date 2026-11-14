@@ -450,7 +450,7 @@
       power: START.power, life: START.life, health: START.health,
       bricks: 0, shieldTonight: 0, credits: 0,
       actionsUsed: 0, done: {},
-      crop: "small", plantedSol: 0, iceFound: false, fullForecast: false,
+      crop: "small", growing: null, plantedSol: 0, iceFound: false, fullForecast: false,
       tiles: {}, cargo: {}, cargoLimit: CARGO_LIMIT, placing: null, selectedTile: null,
       askedEarth: null, history: [], ended: false, resupply: false
     };
@@ -723,8 +723,8 @@
   function missionBlock(mid) {
     if (S.done[mid]) return "Done today ✅";
     if (S.actionsUsed >= ACTIONS_PER_SOL) return "No actions left";
-    if (mid === "harvest" && !S.crop) return "Trays are empty – plant first";
-    if (mid === "harvest" && S.plantedSol === S.sol) return "Still growing – harvest tomorrow";
+    if (mid === "harvest" && !S.crop) return S.growing ? "Still growing – harvest tomorrow" : "Trays are empty – plant first";
+    if (mid === "plant" && S.growing) return "Seeds already planted today";
     if (mid === "bricks" && shieldLevel() >= SHIELD_MAX) return "🛡️ Shield is full (3 of 3)";
     if (mid === "wall" && shieldLevel() >= SHIELD_MAX) return "🛡️ Shield is full (3 of 3)";
     return "";
@@ -1166,8 +1166,8 @@
     switch (mid) {
       case "dust": { const p = g(S.site === "mars" && dusty() ? 16 : 10); S.power += p; S.health -= outside(2); because = S.site === "moon" ? `Facing the low Sun, the tall panel made ${p} extra power.` : `Clean panels catch more light, so we got ${p} power. Working outside cost the crew a little health.`; break; }
       case "battery": { const p = g(12); S.power += p; S.life -= 4; because = `The battery stored ${p} power, but the greenhouse lights were off while we rewired.`; break; }
-      case "plant": S.crop = "big"; S.plantedSol = S.sol; S.health += g(1); S.life -= 3; because = great ? "Perfect watering! Tomorrow's harvest will be BIG." : "The seeds are planted. A bit too much water drained away, but they'll grow."; break;
-      case "harvest": { const big = S.crop === "big"; const l = g(big ? 16 : 8), h = g(big ? 3 : 2); S.life += l; S.health += h; S.power -= 3; S.crop = null; because = `${big ? "A big" : "A small"} harvest gave ${l} Life Support and fresh food for the crew. Now the trays are empty until we plant.`; break; }
+      case "plant": S.growing = "big"; S.plantedSol = S.sol; S.health += g(1); S.life -= 3; because = great ? "Perfect watering! Tomorrow's harvest will be BIG." : "The seeds are planted. A bit too much water drained away, but they'll grow."; break;
+      case "harvest": { const big = S.crop === "big"; const l = g(big ? 16 : 8), h = g(big ? 3 : 2); S.life += l; S.health += h; S.power -= 3; S.crop = null; because = `${big ? "A big" : "A small"} harvest gave ${l} Life Support and fresh food for the crew.` + (S.growing ? " The new seeds will be ready tomorrow." : " Now the trays are empty until we plant."); break; }
       case "melt": { const l = g(S.iceFound ? 18 : 12); S.life += l; S.power -= 8; because = `Melting ice made ${l} Life Support, but the heaters used 8 power.` + (S.iceFound ? " The ice-rich rock helped!" : ""); S.iceFound = false; break; }
       case "recycle": S.life += g(6); S.health += g(2); S.power -= 3; because = "Recycled water is clean water: more Life Support and a healthier crew."; break;
       case "bricks": S.bricks = Math.min(SHIELD_MAX, S.bricks + 1); S.health -= outside(2); S.power -= 4; because = "The new bricks raise the Shield for the rest of the mission. Building outside cost a little health."; break;
@@ -1194,7 +1194,7 @@
       `<p class="cat-line">${kittenImg(S.kitten, "mini cheer")}<span>${quality === "great" ? "Neat job, partner!" : "Good work! A neater job next time gives the full effect."}</span></p>` +
       deltasHTML(before) + `<p class="because"><b>Because…</b> ${r.because}</p><p class="small">🪙 +${r.credits} Credits</p>` +
       `<details class="real"><summary>🔬 Real Science</summary><p>${mi.real}</p><p class="citation">Source: <a href="${mi.src.url}" target="_blank" rel="noopener">${mi.src.text}</a></p></details>` +
-      `<p class="next-hint">${S.actionsUsed < ACTIONS_PER_SOL ? "👈 You have 1 action left: pick another mission here, or go back outside." : "Both actions used today! Go back outside and press END " + S.unit.toUpperCase() + "."}</p></div>`;
+      `<p class="next-hint">${S.actionsUsed < ACTIONS_PER_SOL ? (STATION_MISSIONS[mi.station].some((m) => !missionBlock(m)) ? "👈 You have 1 action left: pick another mission here, or go back outside." : "You have 1 action left. Nothing more to do here today: go back outside and pick another station!") : "Both actions used today! Go back outside and press END " + S.unit.toUpperCase() + "."}</p></div>`;
     mg = null;
     if (checkLose()) return;
     if (S.actionsUsed >= ACTIONS_PER_SOL) say("Both actions used! Press END " + S.unit.toUpperCase() + " when you're ready.", "happy");
@@ -1352,6 +1352,7 @@
     $("#overlay").classList.add("hidden");
     S.sol++;
     S.actionsUsed = 0; S.done = {}; S.shieldTonight = 0; S.fullForecast = false; S.iceFound = false; S.askedEarth = null;
+    if (S.growing) { S.crop = S.growing; S.growing = null; } // seeds planted yesterday are ripe today
     if (S.mode === "infinite") {
       S.events.push(nextInfiniteEvent(S.sol));
       if ((S.sol - 1) % 5 === 0) { resupply(); return; }
