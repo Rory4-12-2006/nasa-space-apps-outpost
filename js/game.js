@@ -624,6 +624,7 @@
   // ===================== Phase 1: Create Your Base =====================
   function renderDock() {
     const dock = $("#dock");
+    $("#screen-game").classList.toggle("building", S.phase === "build");
     if (S.phase !== "build") { dock.classList.add("hidden"); return; }
     dock.classList.remove("hidden");
     const placed = placedCount();
@@ -728,36 +729,64 @@
     if (mid === "wall" && shieldLevel() >= SHIELD_MAX) return "Shield is already at 3";
     return "";
   }
-  function enterStation(id) {
+  // Tools shown on the right side of each station room (grey until their mission is picked)
+  const TOOLS = {
+    dust: [["🧽", "Brush"], ["🔆", "Dusty panels"]], turn: [["🧭", "Angle dial"], ["☀️", "Low Sun"]],
+    battery: [["🔌", "Wires"], ["🔋", "Battery"]],
+    plant: [["🥬", "Lettuce seeds"], ["🥔", "Potato seeds"], ["🍅", "Tomato seeds"], ["🚿", "Water nozzle"]],
+    harvest: [["🧺", "Food crate"], ["🥗", "Ripe food"]],
+    melt: [["🧊", "Ice blocks"], ["🔥", "Heater"], ["🌡️", "Thermometer"]],
+    recycle: [["🪨", "Gravel"], ["⬛", "Charcoal"], ["🧻", "Membrane"], ["🥤", "Used water"]],
+    bricks: [["🧱", "Regolith bricks"], ["🏗️", "Brick press"]],
+    wall: [["🚰", "Valve"], ["💧", "Water tanks"]],
+    scan: [["🪨", "Rock samples"], ["🔬", "Scanner"]],
+    sun: [["🔭", "Telescope"], ["🎛️", "Tuning dials"]]
+  };
+  const toolKey = (mid) => (mid === "dust" && S.site === "moon" ? "turn" : mid);
+
+  function enterStation(id, keepWork) {
     const m = MODULES[id];
     openOverlay("station");
     const ov = $("#overlay");
     ov.className = ov.className.replace(/\bint-\w+/g, "").trim() + " int-" + id;
-    sfx.build();
+    if (!keepWork) sfx.build();
     const chips = (txt, cls) => txt.split(" · ").map((t) => `<span class="chip ${cls}">${t}</span>`).join("");
-    $("#modal").innerHTML = `<div class="int-scene"><div class="int-floor"></div><div class="int-art">${artHTML(m.art, m.emoji)}</div><div>` +
-      `<h2 class="int-title">${m.name}</h2><p class="cat-line">${kittenImg(S.kitten, "mini")}<span class="chip">${m.talk.split("!")[0]}!</span></p><div class="mcards">` +
-      STATION_MISSIONS[id].map((mid) => {
-        const mi = MISSIONS[mid], block = missionBlock(mid);
-        return `<button class="mcard2" data-action="start-mission" data-id="${mid}" ${block ? "disabled" : ""}>` +
-          `<span class="mc2-ico">${mEmoji(mid)}</span><span class="mc2-name">${mName(mid)}</span>` +
-          `<span>${chips(mi.gainTxt(S), "up")}${chips(mi.costTxt.replace(/ \([^)]*\)/g, ""), "down")}</span>` +
-          (block ? `<span class="blocked">${block}</span>` : `<span class="small">⚡ 1 action</span>`) + `</button>`;
-      }).join("") + `</div></div></div><div class="modal-actions"><button class="btn btn-blue" data-action="close-overlay">◀ Back outside</button></div>`;
+    const cards = STATION_MISSIONS[id].map((mid) => {
+      const mi = MISSIONS[mid], block = missionBlock(mid);
+      return `<button class="mcard2" data-action="start-mission" data-id="${mid}" ${block ? "disabled" : ""}>` +
+        `<span class="mc2-row"><span class="mc2-ico">${mEmoji(mid)}</span><span class="mc2-name">${mName(mid)}</span></span>` +
+        `<span>${chips(mi.gainTxt(S), "up")}${chips(mi.costTxt.replace(/ \([^)]*\)/g, ""), "down")}</span>` +
+        (block ? `<span class="blocked">${block}</span>` : `<span class="small">⚡ uses 1 action</span>`) + `</button>`;
+    }).join("");
+    const tools = STATION_MISSIONS[id].map((mid) => `<div class="tool-group" data-mid="${mid}"><div class="tg-name">${mName(mid)}</div><div class="tools">` +
+      TOOLS[toolKey(mid)].map(([e, n]) => `<div class="tool"><span>${e}</span><small>${n}</small></div>`).join("") + `</div></div>`).join("");
+    $("#modal").innerHTML = `<div class="room"><aside class="room-left">` +
+      `<div class="room-head"><span class="room-art">${artHTML(m.art, m.emoji)}</span><h2 class="int-title">${m.name}</h2></div>` +
+      `<p class="cat-line">${kittenImg(S.kitten, "mini")}<span class="chip">${m.talk.split("!")[0]}!</span></p>` +
+      `<div class="room-missions">${cards}</div>` +
+      `<button class="btn btn-blue" data-action="close-overlay">◀ Back outside</button></aside>` +
+      `<section class="room-right"><div id="room-work" class="room-work"><div class="tool-board">${tools}</div><p class="pick-hint">👈 Pick a mission to use its tools</p></div></section></div>`;
   }
 
   // ===================== mini-game engines E1–E5 =====================
   let mg = null; // { mid, mistakes, finish(quality) }
   function startMission(mid) {
     if (missionBlock(mid)) return;
-    const box = document.createElement("div");
-    $("#modal").innerHTML = `<div class="mg-head"><h2>${mEmoji(mid)} ${mName(mid)}</h2><div class="mg-help" id="mg-help"></div></div><div class="mg ${S.site}" id="mg"></div>` +
-      `<div class="modal-actions"><button class="btn hidden" id="mg-giveup" data-action="mg-done">I'm done ✋</button></div>`;
+    if (!$("#room-work")) enterStation(MISSIONS[mid].station, true);
+    const work = $("#room-work");
+    document.querySelectorAll(".room-missions .mcard2").forEach((b) => { b.classList.toggle("active", b.dataset.id === mid); if (b.dataset.id !== mid) b.disabled = true; });
+    // light up this mission's tools first, then the workbench opens
+    const grp = work.querySelector(`.tool-group[data-mid="${mid}"]`);
+    if (grp) grp.classList.add("on");
+    sfx.pop();
     mg = { mid, mistakes: 0, over: false };
-    mg.finish = (q) => { if (mg.over) return; mg.over = true; setTimeout(() => missionResult(mid, q), 700); };
-    setTimeout(() => { const g = $("#mg-giveup"); if (g && mg && !mg.over) g.classList.remove("hidden"); }, 25000);
-    GAMES[mid === "dust" && S.site === "moon" ? "turn" : mid]($("#mg"));
-    void box;
+    setTimeout(() => {
+      work.innerHTML = `<div class="mg-head"><h2>${mEmoji(mid)} ${mName(mid)}</h2><div class="mg-help" id="mg-help"></div></div><div class="mg ${S.site}" id="mg"></div>` +
+        `<div class="modal-actions"><button class="btn hidden" id="mg-giveup" data-action="mg-done">I'm done ✋</button></div>`;
+      mg.finish = (q) => { if (mg.over) return; mg.over = true; setTimeout(() => missionResult(mid, q), 700); };
+      setTimeout(() => { const g = $("#mg-giveup"); if (g && mg && !mg.over) g.classList.remove("hidden"); }, 25000);
+      GAMES[toolKey(mid)]($("#mg"));
+    }, 450);
   }
   const help = (t) => { const h = $("#mg-help"); if (h) h.innerHTML = t; };
   const mistake = (t) => { mg.mistakes++; if (t) help(t); };
@@ -1102,11 +1131,12 @@
     quality === "great" ? sfx.good() : sfx.click();
     renderBars();
     addCredits(r.credits);
-    $("#modal").innerHTML = `<div class="result"><h2>${quality === "great" ? "🌟 Great!" : "👍 Good!"} ${mName(mid)}</h2>` +
+    enterStation(mi.station, true);
+    $("#room-work").innerHTML = `<div class="result"><h2>${quality === "great" ? "🌟 Great!" : "👍 Good!"} ${mName(mid)}</h2>` +
       `<p class="cat-line">${kittenImg(S.kitten, "mini cheer")}<span>${quality === "great" ? "Neat job, partner!" : "Good work! A neater job next time gives the full effect."}</span></p>` +
       deltasHTML(before) + `<p class="because"><b>Because…</b> ${r.because}</p><p class="small">🪙 +${r.credits} Credits</p>` +
       `<details class="real"><summary>🔬 Real Science</summary><p>${mi.real}</p><p class="citation">Source: <a href="${mi.src.url}" target="_blank" rel="noopener">${mi.src.text}</a></p></details>` +
-      `<div class="modal-actions"><button class="btn btn-blue" data-action="enter-station" data-id="${mi.station}">◀ Back to station</button><button class="btn btn-go" data-action="close-overlay">Back to the base ▶</button></div></div>`;
+      `<div class="modal-actions"><button class="btn btn-go" data-action="close-overlay">Back to the base ▶</button></div></div>`;
     mg = null;
     if (checkLose()) return;
     if (S.actionsUsed >= ACTIONS_PER_SOL) say("Both actions used! Press END " + S.unit.toUpperCase() + " when you're ready.", "happy");

@@ -631,7 +631,7 @@ body.site-moon #grid .wall-ring { stroke: #77787f; }
 .mcard2 .blocked { background: #ffe1d6; border-radius: 8px; padding: 0 8px; font-weight: 700; }
 .mg-help { background: #fff1c9; border-radius: 12px; padding: 8px 12px; font-weight: 700; margin: 8px 0; }
 .mg { background: #1d3557; border-radius: 18px; padding: 14px; color: #fff; min-height: 240px; user-select: none; touch-action: none; }
-.mg.moon { filter: grayscale(.85); }
+.mg.moon { }
 .tray-row { display: flex; gap: 16px; align-items: center; justify-content: space-around; flex-wrap: wrap; }
 .drag { font-size: 2.4rem; cursor: grab; padding: 6px; border-radius: 12px; background: rgba(255,255,255,.12); touch-action: none; display: inline-block; }
 .drag.sel { outline: 3px solid #ffe27a; }
@@ -650,7 +650,7 @@ body.site-moon #grid .wall-ring { stroke: #77787f; }
 .crate-box .food { font-size: 1rem; }
 .heater { min-width: 140px; min-height: 140px; border-radius: 50%; background: #5a6b7d; font-weight: 800; }
 .heater .window { font-size: 1.8rem; background: rgba(255,255,255,.2); border-radius: 10px; min-width: 90px; min-height: 40px; display: grid; place-items: center; }
-.ice.moon { filter: grayscale(1) brightness(.8); }
+.ice.moon { }
 .zone-wrap { margin-top: 14px; }
 .zone-label { font-weight: 800; }
 .zone-track { position: relative; height: 26px; border-radius: 999px; background: #3c86e8; overflow: hidden; border: 3px solid #fff; }
@@ -680,7 +680,7 @@ body.site-moon #grid .wall-ring { stroke: #77787f; }
 .drops.clear { color: #7fd3ff; font-weight: 800; }
 .press { display: flex; flex-direction: column; gap: 4px; align-items: center; }
 .press .drag { font-size: 1.8rem; padding: 2px; }
-.brick.moon { filter: grayscale(1); }
+.brick.moon { }
 .dome { position: relative; width: 300px; height: 170px; border-radius: 150px 150px 0 0; background: rgba(200,230,255,.25); border: 4px solid #cfe8ff; }
 .weak { position: absolute; width: 56px; height: 56px; min-width: 0; min-height: 0; border-color: #ff5a5a; background: rgba(255,60,60,.35); animation: glow2 1s infinite; }
 .weak:nth-child(1) { left: 10px; top: 100px; } .weak:nth-child(2) { left: 60px; top: 30px; } .weak:nth-child(3) { left: 122px; top: 4px; } .weak:nth-child(4) { left: 184px; top: 30px; } .weak:nth-child(5) { left: 234px; top: 100px; }
@@ -822,4 +822,65 @@ html, body { height: 100%; overflow: hidden; }
   #screen-game .dock { bottom: 84px; padding: 6px; }
   .crate { padding: 3px; } .cr-pic, .cr-pic img { height: 34px; font-size: 1.6rem; } .cr-eff { font-size: .7rem; }
   .crates { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; } .cr-name { font-size: .7rem; }
+}
+
+/* ===== v2.2: clear colours, right-side build panel, station rooms ===== */
+/* station backgrounds: bright and clean, not dusty */
+.int-power { --int-bg: linear-gradient(160deg, #dbe9ff 0%, #a9c8ff 100%); --accent: #3C6FD1; }
+.int-greenhouse { --int-bg: linear-gradient(160deg, #e3f7e1 0%, #b6e6b9 100%); --accent: #3f9a46; }
+.int-water { --int-bg: linear-gradient(160deg, #dff4ff 0%, #a8dcf5 100%); --accent: #2f86c7; }
+.int-shield { --int-bg: linear-gradient(160deg, #ffe9dc 0%, #f6c3a6 100%); --accent: #b9532e; }
+.int-lab { --int-bg: linear-gradient(160deg, #ece6ff 0%, #c9bdf5 100%); --accent: #6e4fc2; }
+.overlay[data-kind="station"] .modal { color: var(--ink); }
+.overlay[data-kind="station"] .int-title { color: var(--accent); -webkit-text-stroke: 0; font-size: 2rem; }
+.overlay[data-kind="station"] .mg-head h2 { color: var(--accent); }
+.mg-help { color: var(--ink); }
+
+.room { display: grid; grid-template-columns: minmax(280px, 34%) 1fr; gap: 18px; height: 100%; padding: 18px; min-height: 0; }
+.room-left { background: #fff; border-radius: 24px; border: 4px solid var(--accent); padding: 14px; display: flex; flex-direction: column; gap: 10px; min-height: 0; overflow-y: auto; box-shadow: 0 6px 0 rgba(0,0,0,.12); }
+.room-head { display: flex; align-items: center; gap: 10px; }
+.room-art { width: 84px; height: 84px; flex: 0 0 84px; } .room-art img { width: 100%; height: 100%; object-fit: contain; }
+.room-missions { display: flex; flex-direction: column; gap: 10px; flex: 1; }
+.room-missions .mcard2 { border-color: var(--accent); background: #fffdf7; }
+.room-missions .mcard2.active { background: #fff3c4; box-shadow: 0 0 0 4px #ffcf3a; }
+.mc2-row { display: flex; align-items: center; gap: 8px; } .room-missions .mc2-ico { font-size: 2rem; }
+.room-right { background: rgba(255,255,255,.75); border-radius: 24px; border: 4px solid var(--accent); padding: 14px; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; }
+.room-work { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+.tool-board { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.tool-group { background: #f3f3f3; border-radius: 18px; padding: 10px; transition: all .3s; }
+.tg-name { font-family: var(--font-title); color: #888; margin-bottom: 6px; }
+.tools { display: flex; flex-wrap: wrap; gap: 10px; }
+.tool { width: 96px; text-align: center; background: #fff; border-radius: 14px; padding: 8px 4px; border: 3px solid #ddd; filter: grayscale(1) opacity(.45); transition: all .35s; }
+.tool span { font-size: 2.6rem; display: block; } .tool small { font-weight: 800; font-size: .75rem; }
+.tool-group.on { background: #fff8d6; box-shadow: 0 0 0 4px #ffcf3a, 0 0 24px #ffcf3a; }
+.tool-group.on .tg-name { color: var(--ink); }
+.tool-group.on .tool { filter: none; border-color: #ffcf3a; transform: scale(1.08); }
+.pick-hint { text-align: center; font-weight: 800; font-size: 1.2rem; margin-top: auto; color: var(--ink); }
+/* mini-game workbench: light and colourful */
+.mg { background: #f7fbff; color: var(--ink); border: 3px solid var(--accent, #3C6FD1); }
+.overlay[data-kind="station"] .mg { flex: 1; }
+.drag { background: #fff; border: 2px solid #e2e2e2; }
+.slot { border-color: var(--accent, #3C6FD1); background: rgba(255,255,255,.6); }
+.grow-trays { background: linear-gradient(#f4dcff, #e2c4f5); }
+.gtray.full { border-color: #3f9a46; background: #e3f7e1; }
+.heater { background: #ffe1c7; color: var(--ink); } .heater .window { background: #fff; }
+.crate-box { background: #f6d8b0; color: var(--ink); }
+.column { background: #eef7ff; } .scanner { background: #26304f; color: #fff; }
+.dome { background: #e8f4ff; border-color: var(--accent, #3C6FD1); } .streaks { color: #e0752f; }
+.wall-tank { border-color: var(--accent, #3C6FD1); background: #fff; }
+.battery { border-color: var(--ink); background: #fff; }
+.zone-label, .mg label { color: var(--ink); }
+.hold-bar { background: #dde6f0; } .pct-meter { background: #dde6f0; }
+.room-work .result { background: transparent; padding: 0; }
+.produce.unripe { filter: brightness(1.1); transform: scale(.7); opacity: .8; }
+@media (max-width: 900px) { .room { grid-template-columns: 1fr; overflow-y: auto; } .tool-board { grid-template-columns: 1fr; } }
+
+/* build phase: crates in a panel on the right, plot shifted left so nothing covers it */
+@media (min-width: 901px) {
+  #screen-game.building .playfield { right: 330px; }
+  #screen-game.building .dock { left: auto; right: 12px; top: 12px; bottom: 96px; width: 310px; display: flex; flex-direction: column; overflow-y: auto; }
+  #screen-game.building .crates { grid-template-columns: 1fr 1fr; }
+  #screen-game.building .hud { right: 340px; }
+  #screen-game.building #btn-launch { margin-top: auto; }
+  #screen-game.building .balance { font-size: .9rem; }
 }
