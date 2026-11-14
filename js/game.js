@@ -780,6 +780,8 @@
     document.querySelectorAll(".room-missions .mcard2").forEach((b) => b.classList.toggle("active", b.dataset.id === mid));
     // light up this mission's tools; the player drags one onto the workbench to begin
     work.querySelectorAll(".tool-group").forEach((g) => g.classList.toggle("on", g.dataset.mid === mid));
+    work.querySelectorAll(".tool.used").forEach((t) => t.classList.remove("used"));
+    const bt = work.querySelector(".bench-tools"); if (bt) bt.remove();
     work.querySelector("#bench").classList.add("ready");
     work.querySelector("#pick-hint").textContent = "✋ Drag a glowing tool onto the workbench!";
     sfx.pop();
@@ -788,22 +790,53 @@
     dragToSlot(work, (item, slot) => {
       const chosen = (document.querySelector(".room-missions .mcard2.active") || {}).dataset;
       if (!slot.classList.contains("bench") || !chosen || item.dataset.mid !== chosen.id) { sfx.spark(); return; }
-      openWorkbench(chosen.id);
+      // every tool of the mission must go on the bench before the job starts
+      item.classList.add("used");
+      const shelf = slot.querySelector(".bench-tools") || slot.appendChild(Object.assign(document.createElement("div"), { className: "bench-tools" }));
+      shelf.insertAdjacentHTML("beforeend", `<span>${item.querySelector("span").textContent}</span>`);
+      sfx.pop();
+      const need = work.querySelectorAll(".tool-group.on .tool.drag").length, got = work.querySelectorAll(".tool-group.on .tool.used").length;
+      $("#pick-hint").textContent = got < need ? `✋ ${need - got} more tool${need - got > 1 ? "s" : ""} to drag!` : "All set!";
+      if (got >= need) openWorkbench(chosen.id);
     }, ".tool.drag");
   }
+  // How-to card shown before each mini-game: goal, what to watch out for, and the tip to use.
+  const INTRO = {
+    dust: { goal: "Rub the orange dust off all 3 solar panels.", care: "Clean every corner: dust left behind blocks sunlight.", tip: "Over 90% clean = Great!" },
+    turn: { goal: "Turn the tall panel to face the low Sun.", care: "The Sun is low at the Moon's pole, so the panel must tilt a lot.", tip: "Hold the needle in the green zone for 1 second." },
+    battery: { goal: "Connect each wire to the socket of the same colour.", care: "Wrong colours or crossing wires make a spark.", tip: "Yellow to yellow, blue to blue, green to green." },
+    plant: { goal: "Plant a seed in all 4 trays, then water them.", care: "Too much water turns the gauge red and drowns the roots.", tip: "Stop in the green zone and hold it there." },
+    harvest: { goal: "Put only the ripe food in the crate.", care: "Small, pale plants are not ready yet: leave them.", tip: "Big and colourful = ripe." },
+    melt: { goal: "Put 3 ice blocks in the heater, then melt them.", care: "Red means boiling: steam escapes and water is lost.", tip: "Keep the temperature in the green zone until the ice melts." },
+    recycle: { goal: "Stack 3 filter layers in the column, then pour the water.", care: "If the layers are in the wrong order, the water stays cloudy.", tip: "Big stuff first, tiny stuff last: 🪨 Gravel (top) → ⬛ Charcoal → ▫️ Membrane (bottom)." },
+    bricks: { goal: "Cover all 5 glowing weak spots in the dome.", care: "Each red spot lets radiation in.", tip: "Drag one brick onto each red spot." },
+    wall: { goal: "Fill the wall tanks with water.", care: "Too full and the tanks overflow (red).", tip: "Stop inside the green band and hold." },
+    scan: { goal: "Scan 3 rocks and find what each is made of.", care: "Look closely at the colours of the glow.", tip: "Match the glow to the same colour pattern on the chart. White-blue = ice!" },
+    sun: { goal: "Match your blue wave to the Sun's orange wave.", care: "Two dials: one for size, one for speed.", tip: "Fix the size first, then the speed." }
+  };
+
   function openWorkbench(mid) {
     const work = $("#room-work");
     document.querySelectorAll(".room-missions .mcard2").forEach((b) => { if (b.dataset.id !== mid) b.disabled = true; });
     $("#bench").classList.add("fill");
     sfx.build();
     mg = { mid, mistakes: 0, over: false };
+    const it = INTRO[toolKey(mid)];
     setTimeout(() => {
-      work.innerHTML = `<div class="mg-head"><h2>${mEmoji(mid)} ${mName(mid)}</h2><div class="mg-help" id="mg-help"></div></div><div class="mg ${S.site}" id="mg"></div>` +
-        `<div class="modal-actions"><button class="btn hidden" id="mg-giveup" data-action="mg-done">I'm done ✋</button></div>`;
-      mg.finish = (q) => { if (mg.over) return; mg.over = true; setTimeout(() => missionResult(mid, q), 700); };
-      setTimeout(() => { const g = $("#mg-giveup"); if (g && mg && !mg.over) g.classList.remove("hidden"); }, 25000);
-      GAMES[toolKey(mid)]($("#mg"));
+      work.innerHTML = `<div class="intro-card"><h2>${mEmoji(mid)} ${mName(mid)}</h2>` +
+        `<div class="intro-row"><span>🎯</span><div><b>Your job</b><br>${it.goal}</div></div>` +
+        `<div class="intro-row care"><span>⚠️</span><div><b>Take care</b><br>${it.care}</div></div>` +
+        `<div class="intro-row tip"><span>💡</span><div><b>Remember</b><br>${it.tip}</div></div>` +
+        `<button class="btn btn-go" data-action="mg-start">Let's do it! ▶</button></div>`;
     }, 450);
+  }
+  function startMiniGame() {
+    const mid = mg.mid, work = $("#room-work"), it = INTRO[toolKey(mid)];
+    work.innerHTML = `<div class="mg-head"><h2>${mEmoji(mid)} ${mName(mid)}</h2><div class="mg-tip">💡 ${it.tip}</div><div class="mg-help" id="mg-help"></div></div><div class="mg ${S.site}" id="mg"></div>` +
+      `<div class="modal-actions"><button class="btn hidden" id="mg-giveup" data-action="mg-done">I'm done ✋</button></div>`;
+    mg.finish = (q) => { if (mg.over) return; mg.over = true; setTimeout(() => missionResult(mid, q), 700); };
+    setTimeout(() => { const g = $("#mg-giveup"); if (g && mg && !mg.over) g.classList.remove("hidden"); }, 25000);
+    GAMES[toolKey(mid)]($("#mg"));
   }
   const help = (t) => { const h = $("#mg-help"); if (h) h.innerHTML = t; };
   const mistake = (t) => { mg.mistakes++; if (t) help(t); };
@@ -1020,18 +1053,23 @@
     },
     // W2 Recycle the Water (E4)
     recycle(el) {
-      help("Stack the filter layers from top to bottom, then tap Pour.");
+      help("Drag the layers into the column (top to bottom), then tap Pour. Drop on a filled spot to swap.");
       const layers = [["gravel", "🪨 Gravel"], ["charcoal", "⬛ Charcoal"], ["membrane", "▫️ Membrane"]].sort(() => Math.random() - 0.5);
-      el.innerHTML = `<div class="tray-row"><div class="layer-tray">${layers.map(([id, t]) => `<div class="drag layer l-${id}" data-id="${id}">${t}</div>`).join("")}</div>` +
+      el.innerHTML = `<div class="tray-row"><div class="layer-tray slot ltray">${layers.map(([id, t]) => `<div class="drag layer l-${id}" data-id="${id}">${t}</div>`).join("")}</div>` +
         `<div class="column"><div class="cup">🥤 cloudy water</div>${[0, 1, 2].map((i) => `<div class="slot lslot" data-i="${i}"></div>`).join("")}<div class="drops" id="drops">💧 ?</div></div></div>` +
-        `<div class="row"><button class="btn btn-go" id="pour">Pour 💧</button></div>`;
+        `<div class="row"><button class="btn btn-blue" id="reset-layers">↺ Reset</button><button class="btn btn-go" id="pour">Pour 💧</button></div>`;
       const right = ["gravel", "charcoal", "membrane"];
       dragToSlot(el, (item, slot) => {
+        const tray = el.querySelector(".layer-tray");
+        if (slot === tray) { tray.appendChild(item); sfx.pop(); return; }
         if (!slot.classList.contains("lslot")) return;
-        const prev = slot.querySelector(".layer");
-        if (prev) { el.querySelector(".layer-tray").appendChild(prev); prev.classList.remove("used"); }
+        const from = item.parentElement, prev = slot.querySelector(".layer");
+        if (prev === item) return;
+        if (prev) (from.classList.contains("lslot") ? from : tray).appendChild(prev); // swap
         slot.appendChild(item); sfx.pop();
+        $("#drops").textContent = "💧 ?"; $("#drops").className = "drops";
       });
+      el.querySelector("#reset-layers").addEventListener("click", () => { const tray = el.querySelector(".layer-tray"); el.querySelectorAll(".lslot .layer").forEach((l) => tray.appendChild(l)); $("#drops").textContent = "💧 ?"; $("#drops").className = "drops"; sfx.click(); });
       el.querySelector("#pour").addEventListener("click", () => {
         const got = [...el.querySelectorAll(".lslot")].map((s) => (s.querySelector(".layer") || {}).dataset ? s.querySelector(".layer").dataset.id : null);
         if (got.includes(null)) { help("Put all 3 layers in the column first."); return; }
@@ -1490,6 +1528,7 @@
     else if (a === "enter-station") enterStation(el.dataset.id);
     else if (a === "not-now") say(prepareHint());
     else if (a === "start-mission") startMission(el.dataset.id);
+    else if (a === "mg-start") startMiniGame();
     else if (a === "mg-done") { if (mg && !mg.over) { mg.over = true; missionResult(mg.mid, "good"); } }
     else if (a === "close-overlay") { $("#overlay").classList.add("hidden"); mg = null; renderGame(); if (!S.ended) say(S.actionsUsed >= ACTIONS_PER_SOL ? "Both actions used! Press END " + S.unit.toUpperCase() + "." : prepareHint()); }
     else if (a === "endsol") endSol();

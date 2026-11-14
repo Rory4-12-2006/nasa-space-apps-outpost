@@ -906,3 +906,13 @@ html, body { height: 100%; overflow: hidden; }
 .room-actions { display: flex; align-items: center; gap: 6px; font-weight: 800; background: #f3f6ff; border-radius: 12px; padding: 6px 10px; }
 .room-actions .aseg { border-color: var(--accent); background: #fff; } .room-actions .aseg.used { background: #ffcf3a; }
 .next-hint { font-weight: 800; font-size: 1.1rem; background: #fff3c4; border-radius: 12px; padding: 10px 12px; margin-top: 12px; }
+.ltray { min-height: 90px; min-width: 200px; flex-direction: column; padding: 8px; border-style: dashed; }
+.lslot .layer { width: 100%; text-align: center; }
+.intro-card { background: #fffdf7; border-radius: 22px; border: 4px solid var(--accent, #3C6FD1); padding: 18px; max-width: 640px; margin: auto; display: flex; flex-direction: column; gap: 12px; }
+.intro-card h2 { color: var(--accent, #3C6FD1); margin: 0; }
+.intro-row { display: flex; gap: 12px; align-items: flex-start; background: #eef6ff; border-radius: 14px; padding: 10px 12px; font-size: 1.1rem; }
+.intro-row > span { font-size: 2rem; line-height: 1; }
+.intro-row.care { background: #fff0e6; } .intro-row.tip { background: #fff8d6; }
+.intro-card .btn { align-self: center; font-size: 1.4rem; }
+.mg-tip { background: #fff8d6; border-radius: 12px; padding: 6px 12px; font-weight: 800; margin: 6px 0 0; }
+.bench-tools { display: flex; gap: 8px; font-size: 2.2rem; }
