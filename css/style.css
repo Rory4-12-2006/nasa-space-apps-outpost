@@ -57,8 +57,8 @@ body.site-moon {
   --ground-dark: #6c6e78;
   background-image: var(--bg-image), linear-gradient(180deg, #05060f 0%, #10142a 40%, #3a3d4a 52%, #8d8f98 64%, #7a7c86 100%);
 }
-body.has-bg-mars.site-mars { --bg-image: url("../assets/bg-mars.png"); }
-body.has-bg-moon.site-moon { --bg-image: url("../assets/bg-moon.png"); }
+body.has-bg-mars.site-mars { --bg-image: var(--bg-mars-url); }
+body.has-bg-moon.site-moon { --bg-image: var(--bg-moon-url); }
 
 /* drawn craters, hidden once a real background image is loaded */
 body::before {

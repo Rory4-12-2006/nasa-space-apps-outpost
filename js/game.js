@@ -89,6 +89,8 @@
     "site-mars", "site-moon", "card-quick", "card-endless", "card-live", "card-family",
     "kitten-nova", "kitten-cosmo", "kitten-rocket", "kitten-luna"];
   const ARTOK = new Set();
+  const ARTEXT = {}; // name -> "png" or "svg" (team PNGs win over the built-in SVGs)
+  const artURL = (n) => "assets/" + n + "." + (ARTEXT[n] || "png");
   const RADIATION_TYPES = ["flare", "sep", "cme"];
   const POWER_TYPES = ["dust", "night"];
 
@@ -118,6 +120,7 @@
   function showScreen(id) {
     document.querySelectorAll(".screen").forEach((el) => el.classList.remove("active"));
     $("#screen-" + id).classList.add("active");
+    if (SCREEN_TRACK[id]) music.play(SCREEN_TRACK[id]);
     window.scrollTo(0, 0);
   }
   function fmtMinutes(m) {
@@ -132,14 +135,12 @@
   function preloadArt(onProgress) {
     let done = 0;
     return Promise.all(ART.map((name) => new Promise((resolve) => {
-      const img = new Image();
-      img.onload = () => { ARTOK.add(name); resolve(); };
-      img.onerror = () => resolve();
-      img.src = "assets/" + name + ".png";
+      const tryExt = (exts) => { if (!exts.length) return resolve(); const img = new Image(); img.onload = () => { ARTOK.add(name); ARTEXT[name] = exts[0]; resolve(); }; img.onerror = () => tryExt(exts.slice(1)); img.src = "assets/" + name + "." + exts[0]; };
+      tryExt(["png", "svg"]);
     }).then(() => onProgress(++done / ART.length))));
   }
   function artHTML(name, emoji) {
-    return ARTOK.has(name) ? `<img src="assets/${name}.png" alt="">` : `<span class="emoji">${emoji}</span>`;
+    return ARTOK.has(name) ? `<img src="${artURL(name)}" alt="">` : `<span class="emoji">${emoji}</span>`;
   }
   function kittenSrc(id) {
     return ARTOK.has("kitten-" + id) ? "assets/kitten-" + id + ".png" : "assets/" + KITTEN_REF[KITTENS[id].img] + ".webp";
@@ -151,12 +152,14 @@
       el.innerHTML = artHTML(el.dataset.art, el.dataset.emoji || "");
     });
     document.body.classList.toggle("has-bg-mars", ARTOK.has("bg-mars"));
+    if (ARTOK.has("bg-mars")) document.documentElement.style.setProperty("--bg-mars-url", `url("${new URL(artURL("bg-mars"), location.href).href}")`);
+    if (ARTOK.has("bg-moon")) document.documentElement.style.setProperty("--bg-moon-url", `url("${new URL(artURL("bg-moon"), location.href).href}")`);
     document.body.classList.toggle("has-bg-moon", ARTOK.has("bg-moon"));
   }
 
   // ===================== settings =====================
   const SETTINGS_KEY = "sols-settings-v1";
-  const settings = { sound: true, readAloud: false, textSize: 18, calm: false, reminder: 0 };
+  const settings = { sound: true, music: true, readAloud: false, textSize: 18, calm: false, reminder: 0 };
   let reminderTimer = null;
   function loadSettings() { try { Object.assign(settings, JSON.parse(localStorage.getItem(SETTINGS_KEY) || "{}")); } catch (e) { /* defaults */ } }
   function saveSettings() { try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); } catch (e) { /* ignore */ } }
@@ -174,6 +177,7 @@
       }, settings.reminder * 60000);
     }
     if (!settings.readAloud && window.speechSynthesis) window.speechSynthesis.cancel();
+    music.apply();
   }
 
   // ===================== sound =====================
@@ -200,6 +204,60 @@
     pop: () => beep(880, 0.05, "triangle"),
     spark: () => beep(180, 0.12, "sawtooth")
   };
+  // ===================== background music (synth loops, no files) =====================
+  // One gentle loop per screen. 16 steps per bar; null = rest. Notes are MIDI numbers.
+  const TRACKS = {
+    title:   { bpm: 84,  wave: "triangle", lead: [72,null,76,null,79,null,76,null,74,null,77,null,81,null,77,null], bass: [48,null,null,null,55,null,null,null,50,null,null,null,53,null,null,null], pad: [60, 64, 67] },
+    menu:    { bpm: 100, wave: "triangle", lead: [76,null,79,81,null,79,76,null,74,null,76,79,null,76,74,null], bass: [52,null,52,null,57,null,57,null,50,null,50,null,55,null,55,null], pad: [64, 67, 71] },
+    build:   { bpm: 112, wave: "square",   lead: [72,74,76,null,79,null,76,null,77,76,74,null,72,null,null,null], bass: [48,null,55,null,48,null,55,null,53,null,60,null,53,null,60,null], pad: [60, 64, 67] },
+    sol:     { bpm: 92,  wave: "sine",     lead: [69,null,null,72,null,null,76,null,74,null,null,72,null,null,71,null], bass: [45,null,null,null,null,null,52,null,41,null,null,null,null,null,48,null], pad: [57, 60, 64] },
+    storm:   { bpm: 120, wave: "sawtooth", lead: [64,null,63,null,64,null,null,null,67,null,66,null,64,null,null,null], bass: [40,40,null,40,40,null,40,null,39,39,null,39,39,null,39,null], pad: [52, 55, 58] },
+    win:     { bpm: 108, wave: "triangle", lead: [72,76,79,84,null,79,84,null,77,81,84,89,null,84,null,null], bass: [48,null,55,null,48,null,55,null,53,null,60,null,53,null,60,null], pad: [60, 64, 67] },
+    debrief: { bpm: 76,  wave: "sine",     lead: [67,null,null,64,null,null,62,null,60,null,null,62,null,null,64,null], bass: [48,null,null,null,null,null,null,null,45,null,null,null,null,null,null,null], pad: [57, 60, 64] }
+  };
+  const music = (() => {
+    let ctx = null, gain = null, track = null, step = 0, nextT = 0, timer = null, wanted = "title";
+    const hz = (m) => 440 * Math.pow(2, (m - 69) / 12);
+    function note(m, t, dur, type, vol) {
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.type = type; o.frequency.value = hz(m);
+      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t + 0.02); g.gain.exponentialRampToValueAtTime(0.0008, t + dur);
+      o.connect(g); g.connect(gain); o.start(t); o.stop(t + dur + 0.05);
+    }
+    function tick() {
+      if (!track) return;
+      const sp = 60 / track.bpm / 4;
+      while (nextT < ctx.currentTime + 0.25) {
+        const i = step % 16;
+        if (track.lead[i] != null) note(track.lead[i], nextT, sp * 1.8, track.wave, track.wave === "sawtooth" || track.wave === "square" ? 0.035 : 0.07);
+        if (track.bass[i] != null) note(track.bass[i], nextT, sp * 3, "triangle", 0.09);
+        if (i === 0) track.pad.forEach((m) => note(m, nextT, sp * 15, "sine", 0.025));
+        nextT += sp; step++;
+      }
+    }
+    function play(name) {
+      wanted = name;
+      if (!settings.music || !ctx) return;
+      if (track === TRACKS[name]) return;
+      track = TRACKS[name]; step = 0; nextT = ctx.currentTime + 0.1;
+    }
+    function unlock() {
+      if (ctx || !settings.music) return;
+      try {
+        ctx = new (window.AudioContext || window.webkitAudioContext)();
+        gain = ctx.createGain(); gain.gain.value = 0.6; gain.connect(ctx.destination);
+        timer = setInterval(tick, 100);
+        play(wanted);
+      } catch (e) { /* no audio */ }
+    }
+    function apply() {
+      if (!settings.music) { track = null; if (ctx) ctx.suspend(); }
+      else if (ctx) { ctx.resume(); const w = wanted; track = null; play(w); }
+    }
+    return { play, unlock, apply };
+  })();
+  const SCREEN_TRACK = { loading: "title", title: "title", kitten: "menu", missions: "menu", location: "menu", brief: "menu", sources: "menu" };
+
   function speak(text) {
     if (!settings.readAloud || !window.speechSynthesis) return;
     try {
@@ -375,7 +433,7 @@
   function svgEl(tag, attrs) { const e = document.createElementNS(SVGNS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); return e; }
   function spriteNode(name, emoji, cx, baseY, size, cls) {
     let n;
-    if (ARTOK.has(name)) n = svgEl("image", { href: "assets/" + name + ".png", x: cx - size / 2, y: baseY - size, width: size, height: size, class: "sprite " + (cls || "") });
+    if (ARTOK.has(name)) n = svgEl("image", { href: artURL(name), x: cx - size / 2, y: baseY - size, width: size, height: size, class: "sprite " + (cls || "") });
     else { n = svgEl("text", { x: cx, y: baseY, class: "sprite emoji-sprite " + (cls || ""), "font-size": Math.round(size * 0.6) }); n.textContent = emoji; }
     return n;
   }
@@ -414,7 +472,7 @@
       const doneAll = S.phase === "sol" && STATION_MISSIONS[id].every((mid) => S.done[mid]);
       sprites.push({ order: r + c, node: () => {
         const grp = svgEl("g", { class: "station " + (S.phase === "sol" ? (doneAll ? "done" : "pulse") : ""), "data-key": key });
-        grp.appendChild(spriteNode(m.art, m.emoji, t.x, t.y + TH / 2 + 14, 78, ""));
+        grp.appendChild(spriteNode(m.art, m.emoji, t.x, t.y + TH / 2 + 22, 104, ""));
         if (S.phase === "sol") {
           const b = svgEl("text", { x: t.x + 22, y: t.y - 10, class: "st-badge" });
           b.textContent = doneAll ? "✅" : STATION_MISSIONS[id].map((mid) => mEmoji(mid)).join("");
@@ -503,7 +561,7 @@
 
   function renderForecast() {
     const f = $("#forecast");
-    if (S.phase !== "sol") { f.innerHTML = `<div class="fc-text"><b>PHASE 1 – CREATE YOUR BASE</b><div class="meta">Choose ${S.cargoLimit} crates for the rocket, then launch ${S.unit} 1.</div></div>`; f.className = "forecast"; return; }
+    if (S.phase !== "sol") { f.innerHTML = `<div class="big-ico">🏗️</div><div class="fc-text"><b>PHASE 1 – CREATE YOUR BASE</b><div class="meta">Choose ${S.cargoLimit} crates for the rocket, then launch ${S.unit} 1.</div></div>`; f.className = "forecast"; return; }
     const ev = currentEvent();
     const hasLab = count("lab") > 0;
     if (isQuiet(ev) && ev.type !== "conjunction") {
@@ -1034,6 +1092,7 @@
     if (isRad(ev)) { ov.classList.add("flash"); sfx.alarm(); }
     if (ev.type === "dust") { ov.classList.add("redsky"); sfx.alarm(); }
     if (ev.type === "night") ov.classList.add("dark");
+    music.play("storm");
     const choices = choicesFor(ev);
     $("#modal").innerHTML =
       `<div class="ev-head"><div class="big-ico anim-${ev.type}">${ev.icon}</div><div><h2>${S.unit} ${S.sol}: ${ev.title}</h2>` +
@@ -1122,6 +1181,7 @@
     showReveal(ev, before, because, o, choiceId);
   }
   function showReveal(ev, before, because, night, choiceId) {
+    music.play("sol");
     openOverlay("reveal");
     let earthLine = "";
     if (S.askedEarth === "late" && ev.earthAdvice) earthLine = `<p class="realnum">📡 Earth's message came ${fmtMinutes(ev.lightDelayMinutes * 2)} after you asked. It said: <i>"${ev.earthAdvice.text}"</i></p>`;
@@ -1226,6 +1286,7 @@
       `<a href="https://www.asc-csa.gc.ca/eng/youth-educators/toolkits/food-production-in-space/" target="_blank" rel="noopener">Food Production in Space toolkit</a>.</p></div>`;
     $("#debrief").innerHTML = body +
       `<div class="row"><button class="btn btn-play" data-action="again">↻ TRY AGAIN</button>${S.mode === "family" ? `<button class="btn btn-blue" data-action="print">🖨️ Print</button>` : ""}<button class="btn btn-blue" data-action="home">🏠 HOME</button></div>`;
+    music.play(won ? "win" : "debrief");
     won ? sfx.good() : sfx.bad();
     showScreen("debrief");
   }
@@ -1255,7 +1316,7 @@
     renderGame();
     say(`Let's build our base! Pick a crate, then tap a glowing tile. We can take ${CARGO_LIMIT} crates – every kilogram costs fuel to launch.`, "point");
   }
-  function renderGame() { renderBars(S.phase === "sol" ? overnightPreviewNow() : null); renderGrid(); renderDock(); renderForecast(); renderSolButtons(); }
+  function renderGame() { music.play(S.phase === "build" ? "build" : "sol"); renderBars(S.phase === "sol" ? overnightPreviewNow() : null); renderGrid(); renderDock(); renderForecast(); renderSolButtons(); }
   function overnightPreviewNow() { const ev = currentEvent(); const o = overnight(ev ? ev.sunlight : 1, false); return { power: o.power, life: o.life, health: o.health }; }
   function renderSolButtons() {
     const end = $("#btn-endsol");
@@ -1305,6 +1366,7 @@
   }
 
   document.addEventListener("click", (e) => {
+    music.unlock();
     const tile = e.target.closest && e.target.closest("#grid .tile, #grid .station");
     if (tile && S) {
       const key = tile.getAttribute("data-key");
