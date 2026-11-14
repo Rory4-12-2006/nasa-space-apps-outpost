@@ -204,34 +204,66 @@
     pop: () => beep(880, 0.05, "triangle"),
     spark: () => beep(180, 0.12, "sawtooth")
   };
-  // ===================== background music (synth loops, no files) =====================
-  // One gentle loop per screen. 16 steps per bar; null = rest. Notes are MIDI numbers.
+  // ===================== background music (generative synth, no files) =====================
+  // Each screen has a style: tempo, scale, chord progression, instruments and drum pattern.
+  // The melody is re-generated every bar from the chord, with A/B sections, so it never loops the same way.
   const TRACKS = {
-    title:   { bpm: 84,  wave: "triangle", lead: [72,null,76,null,79,null,76,null,74,null,77,null,81,null,77,null], bass: [48,null,null,null,55,null,null,null,50,null,null,null,53,null,null,null], pad: [60, 64, 67] },
-    menu:    { bpm: 100, wave: "triangle", lead: [76,null,79,81,null,79,76,null,74,null,76,79,null,76,74,null], bass: [52,null,52,null,57,null,57,null,50,null,50,null,55,null,55,null], pad: [64, 67, 71] },
-    build:   { bpm: 112, wave: "square",   lead: [72,74,76,null,79,null,76,null,77,76,74,null,72,null,null,null], bass: [48,null,55,null,48,null,55,null,53,null,60,null,53,null,60,null], pad: [60, 64, 67] },
-    sol:     { bpm: 92,  wave: "sine",     lead: [69,null,null,72,null,null,76,null,74,null,null,72,null,null,71,null], bass: [45,null,null,null,null,null,52,null,41,null,null,null,null,null,48,null], pad: [57, 60, 64] },
-    storm:   { bpm: 120, wave: "sawtooth", lead: [64,null,63,null,64,null,null,null,67,null,66,null,64,null,null,null], bass: [40,40,null,40,40,null,40,null,39,39,null,39,39,null,39,null], pad: [52, 55, 58] },
-    win:     { bpm: 108, wave: "triangle", lead: [72,76,79,84,null,79,84,null,77,81,84,89,null,84,null,null], bass: [48,null,55,null,48,null,55,null,53,null,60,null,53,null,60,null], pad: [60, 64, 67] },
-    debrief: { bpm: 76,  wave: "sine",     lead: [67,null,null,64,null,null,62,null,60,null,null,62,null,null,64,null], bass: [48,null,null,null,null,null,null,null,45,null,null,null,null,null,null,null], pad: [57, 60, 64] }
+    title:   { bpm: 82,  root: 60, scale: [0,2,4,7,9],       prog: [0,5,3,4], lead: "triangle", leadVol: .06, density: .45, octave: 12, drums: "soft",   pad: true,  arp: true },
+    menu:    { bpm: 104, root: 62, scale: [0,2,4,5,7,9,11],  prog: [0,3,4,0], lead: "square",   leadVol: .03, density: .6,  octave: 12, drums: "pop",    pad: false, arp: true },
+    build:   { bpm: 118, root: 60, scale: [0,2,4,7,9],       prog: [0,4,5,3], lead: "square",   leadVol: .03, density: .7,  octave: 12, drums: "funk",   pad: false, arp: false },
+    sol:     { bpm: 90,  root: 57, scale: [0,2,3,5,7,9,10],  prog: [0,3,6,4], lead: "sine",     leadVol: .07, density: .4,  octave: 12, drums: "soft",   pad: true,  arp: true },
+    storm:   { bpm: 132, root: 52, scale: [0,1,3,5,7,8,10],  prog: [0,1,5,4], lead: "sawtooth", leadVol: .025, density: .75, octave: 12, drums: "storm", pad: true,  arp: false },
+    win:     { bpm: 116, root: 60, scale: [0,2,4,5,7,9,11],  prog: [0,4,5,3], lead: "triangle", leadVol: .07, density: .8,  octave: 12, drums: "pop",    pad: true,  arp: true },
+    debrief: { bpm: 72,  root: 57, scale: [0,2,3,5,7,8,10],  prog: [0,5,3,4], lead: "sine",     leadVol: .07, density: .3,  octave: 12, drums: "none",   pad: true,  arp: false }
+  };
+  const DRUMS = { // k = kick, s = snare, h = hat, per 16 steps
+    none: "................",
+    soft: "k.......h.......".replace(/./g, (c) => c) ,
+    pop:  "k.h.s.h.k.h.s.hh",
+    funk: "k.hhs.h.k.k.s.hh",
+    storm:"k.hkk.hks.hkk.hs"
   };
   const music = (() => {
-    let ctx = null, gain = null, track = null, step = 0, nextT = 0, timer = null, wanted = "title";
+    let ctx = null, gain = null, track = null, step = 0, nextT = 0, wanted = "title", noise = null, melody = [];
     const hz = (m) => 440 * Math.pow(2, (m - 69) / 12);
-    function note(m, t, dur, type, vol) {
+    function env(node, t, a, peak, dur) { node.gain.setValueAtTime(0.0001, t); node.gain.linearRampToValueAtTime(peak, t + a); node.gain.exponentialRampToValueAtTime(0.0001, t + dur); }
+    function tone(m, t, dur, type, vol, detune) {
       const o = ctx.createOscillator(), g = ctx.createGain();
-      o.type = type; o.frequency.value = hz(m);
-      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t + 0.02); g.gain.exponentialRampToValueAtTime(0.0008, t + dur);
-      o.connect(g); g.connect(gain); o.start(t); o.stop(t + dur + 0.05);
+      o.type = type; o.frequency.value = hz(m); if (detune) o.detune.value = detune;
+      env(g, t, 0.015, vol, dur); o.connect(g); g.connect(gain); o.start(t); o.stop(t + dur + 0.05);
+    }
+    function kick(t) { const o = ctx.createOscillator(), g = ctx.createGain(); o.frequency.setValueAtTime(140, t); o.frequency.exponentialRampToValueAtTime(40, t + 0.15); env(g, t, 0.005, 0.25, 0.2); o.connect(g); g.connect(gain); o.start(t); o.stop(t + 0.25); }
+    function hit(t, hp, vol, dur) { const s = ctx.createBufferSource(), f = ctx.createBiquadFilter(), g = ctx.createGain(); s.buffer = noise; f.type = "highpass"; f.frequency.value = hp; env(g, t, 0.002, vol, dur); s.connect(f); f.connect(g); g.connect(gain); s.start(t); s.stop(t + dur + 0.02); }
+    // chord degree -> MIDI notes of the triad built on the track's scale
+    function chord(deg) { const sc = track.scale, n = sc.length; return [0, 2, 4].map((k) => track.root + sc[(deg + k) % n] + 12 * Math.floor((deg + k) / n)); }
+    function newMelody(bar) {
+      const ch = chord(track.prog[bar % 4]), sc = track.scale;
+      const sectionB = Math.floor(bar / 4) % 2 === 1;
+      melody = [];
+      let idx = Math.floor(Math.random() * sc.length);
+      for (let i = 0; i < 16; i++) {
+        const strong = i % 4 === 0;
+        if (Math.random() > (strong ? 0.9 : track.density * (sectionB ? 0.8 : 1))) { melody.push(null); continue; }
+        if (strong) { melody.push(ch[Math.floor(Math.random() * 3)] + track.octave + (sectionB ? 12 : 0)); continue; }
+        idx = Math.max(0, Math.min(sc.length * 2 - 1, idx + [-2, -1, -1, 1, 1, 2][Math.floor(Math.random() * 6)]));
+        melody.push(track.root + sc[idx % sc.length] + 12 * Math.floor(idx / sc.length) + track.octave + (sectionB ? 12 : 0));
+      }
     }
     function tick() {
       if (!track) return;
       const sp = 60 / track.bpm / 4;
       while (nextT < ctx.currentTime + 0.25) {
-        const i = step % 16;
-        if (track.lead[i] != null) note(track.lead[i], nextT, sp * 1.8, track.wave, track.wave === "sawtooth" || track.wave === "square" ? 0.035 : 0.07);
-        if (track.bass[i] != null) note(track.bass[i], nextT, sp * 3, "triangle", 0.09);
-        if (i === 0) track.pad.forEach((m) => note(m, nextT, sp * 15, "sine", 0.025));
+        const i = step % 16, bar = Math.floor(step / 16);
+        if (i === 0) newMelody(bar);
+        const ch = chord(track.prog[bar % 4]);
+        if (track.pad && i === 0) ch.forEach((m) => { tone(m, nextT, sp * 16, "sine", 0.03); tone(m, nextT, sp * 16, "triangle", 0.012, 7); });
+        if (i % 4 === 0 || (track.drums === "funk" && i % 4 === 3)) tone(ch[0] - 12, nextT, sp * (i % 8 === 0 ? 3 : 1.5), "triangle", 0.1);
+        if (track.arp && i % 2 === 0) tone(ch[(i / 2) % 3] + 12, nextT, sp * 1.2, "sine", 0.025);
+        if (melody[i] != null) tone(melody[i], nextT, sp * (Math.random() < .3 ? 3 : 1.6), track.lead, track.leadVol);
+        const d = DRUMS[track.drums][i];
+        if (d === "k") kick(nextT);
+        if (d === "s") hit(nextT, 1500, 0.08, 0.12);
+        if (d === "h") hit(nextT, 7000, 0.03, 0.04);
         nextT += sp; step++;
       }
     }
@@ -239,14 +271,16 @@
       wanted = name;
       if (!settings.music || !ctx) return;
       if (track === TRACKS[name]) return;
-      track = TRACKS[name]; step = 0; nextT = ctx.currentTime + 0.1;
+      track = TRACKS[name]; step = 0; nextT = ctx.currentTime + 0.12;
     }
     function unlock() {
       if (ctx || !settings.music) return;
       try {
         ctx = new (window.AudioContext || window.webkitAudioContext)();
-        gain = ctx.createGain(); gain.gain.value = 0.6; gain.connect(ctx.destination);
-        timer = setInterval(tick, 100);
+        gain = ctx.createGain(); gain.gain.value = 0.55; gain.connect(ctx.destination);
+        noise = ctx.createBuffer(1, ctx.sampleRate * 0.5, ctx.sampleRate);
+        const d = noise.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+        setInterval(tick, 80);
         play(wanted);
       } catch (e) { /* no audio */ }
     }
@@ -428,7 +462,11 @@
 
   // ===================== isometric grid 8×8 =====================
   const SVGNS = "http://www.w3.org/2000/svg";
-  const N = 8, TW = 84, TH = 42, X0 = 360, Y0 = 30;
+  // The 8x8 plot is drawn to match the diamond painted in assets/plot-<site> (1280x714).
+  const PLOT = { mars: { img: "assets/plot-mars.jpg", TW: 117, TH: 67, X0: 640, Y0: 110 }, moon: { img: "assets/plot-moon.webp", TW: 115, TH: 62.75, X0: 640, Y0: 150 } };
+  const N = 8;
+  let TW = 117, TH = 67, X0 = 640, Y0 = 110;
+  const K = 1.4; // sprite scale for the 1280-wide plot
   const tileTop = (r, c) => ({ x: X0 + (c - r) * TW / 2, y: Y0 + (c + r) * TH / 2 });
   function svgEl(tag, attrs) { const e = document.createElementNS(SVGNS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); return e; }
   function spriteNode(name, emoji, cx, baseY, size, cls) {
@@ -443,6 +481,8 @@
   function renderGrid() {
     const svg = $("#grid");
     svg.innerHTML = "";
+    const P = PLOT[S.site]; TW = P.TW; TH = P.TH; X0 = P.X0; Y0 = P.Y0;
+    svg.appendChild(svgEl("image", { href: P.img, x: 0, y: 0, width: 1280, height: 714, class: "plot-img" }));
     const g = svgEl("g", {});
     for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) {
       const t = tileTop(r, c), key = r + "," + c, mod = S.tiles[key];
@@ -463,7 +503,7 @@
     renderWallRing(svg);
     const sprites = [];
     const hc = tileTop(3, 3);
-    sprites.push({ order: 7, node: () => spriteNode("habitat", "🛖", hc.x, hc.y + TH * 2 + 6, 150, "") });
+    sprites.push({ order: 7, node: () => spriteNode("habitat", "🛖", hc.x, hc.y + TH * 2 + 10, 150 * K, "") });
     Object.keys(S.tiles).forEach((key) => {
       const id = S.tiles[key];
       if (id === "habitat") return;
@@ -472,9 +512,9 @@
       const doneAll = S.phase === "sol" && STATION_MISSIONS[id].every((mid) => S.done[mid]);
       sprites.push({ order: r + c, node: () => {
         const grp = svgEl("g", { class: "station " + (S.phase === "sol" ? (doneAll ? "done" : "pulse") : ""), "data-key": key });
-        grp.appendChild(spriteNode(m.art, m.emoji, t.x, t.y + TH / 2 + 22, 104, ""));
+        grp.appendChild(spriteNode(m.art, m.emoji, t.x, t.y + TH / 2 + 30, 104 * K, ""));
         if (S.phase === "sol") {
-          const b = svgEl("text", { x: t.x + 22, y: t.y - 10, class: "st-badge" });
+          const b = svgEl("text", { x: t.x + 34, y: t.y - 60, class: "st-badge" });
           b.textContent = doneAll ? "✅" : STATION_MISSIONS[id].map((mid) => mEmoji(mid)).join("");
           grp.appendChild(b);
         }
@@ -502,7 +542,7 @@
       if (!key) return;
       const [r, c] = key.split(",").map(Number);
       const t = tileTop(r, c);
-      svg.appendChild(svgEl("image", { href: kittenSrc(k), x: t.x - 14, y: t.y - 6, width: 28, height: 28, class: "crew" }));
+      svg.appendChild(svgEl("image", { href: kittenSrc(k), x: t.x - 20, y: t.y - 8, width: 40, height: 40, class: "crew" }));
     });
   }
   let crewStep = 0;
@@ -601,7 +641,7 @@
       b.dataset.action = "crate"; b.dataset.id = k;
       b.disabled = left <= 0 || placed - S.basePlaced >= S.cargoLimit;
       b.innerHTML = `<span class="cr-count">×${left}</span><span class="cr-pic">${artHTML(m.art, m.emoji)}</span><span class="cr-name">${m.name}</span><span class="cr-eff">${m.daily}</span>` +
-        `<span class="cr-info" title="${m.info[S.site]}">ℹ️ ${m.info[S.site]}</span>`;
+        `<span class="cr-info" title="${m.info[S.site]}">ℹ️</span>`;
       crates.appendChild(b);
     });
     const invEmpty = MOD_ORDER.every((k) => S.cargo[k] <= 0);
@@ -691,15 +731,19 @@
   function enterStation(id) {
     const m = MODULES[id];
     openOverlay("station");
-    $("#modal").innerHTML = `<div class="interior int-${id}"><h2>${m.emoji} ${m.name}</h2>` +
-      `<p class="cat-line">${kittenImg(S.kitten, "mini")}<span>"${m.talk}"</span></p><div class="mcards">` +
+    const ov = $("#overlay");
+    ov.className = ov.className.replace(/\bint-\w+/g, "").trim() + " int-" + id;
+    sfx.build();
+    const chips = (txt, cls) => txt.split(" · ").map((t) => `<span class="chip ${cls}">${t}</span>`).join("");
+    $("#modal").innerHTML = `<div class="int-scene"><div class="int-floor"></div><div class="int-art">${artHTML(m.art, m.emoji)}</div><div>` +
+      `<h2 class="int-title">${m.name}</h2><p class="cat-line">${kittenImg(S.kitten, "mini")}<span class="chip">${m.talk.split("!")[0]}!</span></p><div class="mcards">` +
       STATION_MISSIONS[id].map((mid) => {
         const mi = MISSIONS[mid], block = missionBlock(mid);
         return `<button class="mcard2" data-action="start-mission" data-id="${mid}" ${block ? "disabled" : ""}>` +
           `<span class="mc2-ico">${mEmoji(mid)}</span><span class="mc2-name">${mName(mid)}</span>` +
-          `<span class="gain">${mi.gainTxt(S)}</span><span class="cost">${mi.costTxt}</span>` +
-          `<span class="small">1 action · ${typeof mi.engine === "string" ? mi.engine : mi.engine[S.site]}</span>${block ? `<span class="blocked">${block}</span>` : ""}</button>`;
-      }).join("") + `</div><div class="modal-actions"><button class="btn btn-blue" data-action="close-overlay">◀ Back to the base</button></div></div>`;
+          `<span>${chips(mi.gainTxt(S), "up")}${chips(mi.costTxt.replace(/ \([^)]*\)/g, ""), "down")}</span>` +
+          (block ? `<span class="blocked">${block}</span>` : `<span class="small">⚡ 1 action</span>`) + `</button>`;
+      }).join("") + `</div></div></div><div class="modal-actions"><button class="btn btn-blue" data-action="close-overlay">◀ Back outside</button></div>`;
   }
 
   // ===================== mini-game engines E1–E5 =====================
@@ -766,7 +810,7 @@
     const inp = el.querySelector("input"), needle = el.querySelector(".needle"), hold = el.querySelector("#" + id + "-h");
     let t0 = null, done = false, raf = null;
     const tick = () => {
-      if (done) return;
+      if (done || !el.isConnected) return;
       const v = Number(inp.value);
       needle.style.left = v + "%";
       if (opts.onValue) opts.onValue(v);
@@ -1061,7 +1105,7 @@
     $("#modal").innerHTML = `<div class="result"><h2>${quality === "great" ? "🌟 Great!" : "👍 Good!"} ${mName(mid)}</h2>` +
       `<p class="cat-line">${kittenImg(S.kitten, "mini cheer")}<span>${quality === "great" ? "Neat job, partner!" : "Good work! A neater job next time gives the full effect."}</span></p>` +
       deltasHTML(before) + `<p class="because"><b>Because…</b> ${r.because}</p><p class="small">🪙 +${r.credits} Credits</p>` +
-      `<details class="real" open><summary>🔬 Real Science</summary><p>${mi.real}</p><p class="citation">Source: <a href="${mi.src.url}" target="_blank" rel="noopener">${mi.src.text}</a></p></details>` +
+      `<details class="real"><summary>🔬 Real Science</summary><p>${mi.real}</p><p class="citation">Source: <a href="${mi.src.url}" target="_blank" rel="noopener">${mi.src.text}</a></p></details>` +
       `<div class="modal-actions"><button class="btn btn-blue" data-action="enter-station" data-id="${mi.station}">◀ Back to station</button><button class="btn btn-go" data-action="close-overlay">Back to the base ▶</button></div></div>`;
     mg = null;
     if (checkLose()) return;
@@ -1079,6 +1123,7 @@
   function openOverlay(kind) {
     const ov = $("#overlay");
     ov.classList.remove("hidden", "flash", "redsky", "dark");
+    if (kind !== "station") ov.className = ov.className.replace(/\bint-\w+/g, "").trim();
     ov.dataset.kind = kind || "";
   }
   function endSol() {
@@ -1100,7 +1145,7 @@
       `<p class="cat-line">${kittenImg(S.kitten, "mini worried")}<span><b>${ev.headline}</b><br><span class="why">${ev.why}</span></span></p>` +
       `<details class="real"><summary>🔬 Real Science</summary><p>${ev.realScience}</p><p class="citation">Source: <a href="${ev.citation.url}" target="_blank" rel="noopener">${ev.citation.text}</a></p></details>` +
       `<h3>What will you do?</h3><div class="choices">` +
-      choices.map((c) => `<button class="choice" data-action="choose" data-id="${c.id}" ${c.enabled ? "" : "disabled"}><span class="name">${c.icon} ${c.name}</span><span class="cost">${c.cost}</span></button>`).join("") +
+      choices.map((c) => `<button class="choice" data-action="choose" data-id="${c.id}" ${c.enabled ? "" : "disabled"}><span class="name">${c.icon} ${c.name}</span><span class="cost">${c.cost.split(" · ").map((t) => `<span class="chip">${t}</span>`).join("")}</span></button>`).join("") +
       `</div><div class="earth"><button class="btn" data-action="ask-earth">📡 Ask Earth</button><div id="earth-anim" class="earth-anim hidden"><span class="dish">📡</span><span class="msg">✉️</span><span class="planet">🌍</span><span class="clock" id="earth-clock"></span></div><p id="earth-reply">Message time to Earth today: <b>${fmtMinutes(ev.lightDelayMinutes)}</b> each way. Asking is free.</p></div>`;
     speak(ev.headline + " " + ev.why);
   }
@@ -1108,13 +1153,13 @@
     const hasShelter = count("shield") > 0;
     const saved = S.actionsUsed < ACTIONS_PER_SOL;
     if (isRad(ev)) return [
-      { id: "shelter", icon: "🏠", name: "Shelter", cost: hasShelter ? "Storm dose × 0.15 · 💨 −6 (nobody tends the plants) · 🪙 +10" : "Needs a Radiation Shield station", enabled: hasShelter },
-      { id: "work", icon: "⛏️", name: "Keep Working", cost: `Full storm dose, cut ${shieldLevel() * 25}% by your Shield · 🪙 +10 +20 brave`, enabled: true },
-      { id: "reinforce", icon: "🧱", name: "Reinforce", cost: saved ? "Uses your saved action · 🛡️ +1 tonight · ⚡ −5 · dose × 0.6 · 🪙 +10 +10" : "Needs 1 saved action", enabled: saved }
+      { id: "shelter", icon: "🏠", name: "Shelter", cost: hasShelter ? "☢️ −85% · 💨 −6 · 🪙 +10" : "🔒 Needs a Shield station", enabled: hasShelter },
+      { id: "work", icon: "⛏️", name: "Keep Working", cost: `☢️ full hit −${shieldLevel() * 25}% 🛡️ · 🪙 +30`, enabled: true },
+      { id: "reinforce", icon: "🧱", name: "Reinforce", cost: saved ? "🛡️ +1 · ☢️ −40% · ⚡ −5 · 🪙 +20" : "🔒 Needs 1 saved action", enabled: saved }
     ];
     return [
-      { id: "powerdown", icon: "🔌", name: "Power Down", cost: "Greenhouses and Lab stop tonight: no power cost from them, no Life Support from greenhouses · 🪙 +10", enabled: true },
-      { id: "keepon", icon: "💡", name: "Keep Everything On", cost: "Normal production and normal costs. Risky in the dark! · 🪙 +10", enabled: true }
+      { id: "powerdown", icon: "🔌", name: "Power Down", cost: "⚡ saved · 🌱🔬 off tonight · 🪙 +10", enabled: true },
+      { id: "keepon", icon: "💡", name: "Keep Everything On", cost: "💨 normal · ⚡ big drain · 🪙 +10", enabled: true }
     ];
   }
   function askEarth() {
@@ -1193,7 +1238,7 @@
     $("#modal").innerHTML = `<h2>${ev.icon} What happened</h2>` + deltasHTML(before) +
       `<p class="because"><b>Because…</b> ${because}</p>` +
       `<p class="realnum">🔬 <b>In real life:</b> ${ev.realNumber} ${badge(ev.mode)}</p>` + earthLine + roverPhotoHTML() +
-      `<p class="overnight">🌙 Overnight: daily upkeep ⚡ −${UPKEEP.power} 💨 −${UPKEEP.life} ❤️ −${HEALTH_UPKEEP[S.site]} (background cosmic rays), plus every module's daily effect.${sunTxt}</p>` + talk +
+      `<p class="overnight">🌙 Night upkeep: <span class="chip down">⚡ −${UPKEEP.power}</span><span class="chip down">💨 −${UPKEEP.life}</span><span class="chip down">❤️ −${HEALTH_UPKEEP[S.site]}</span>${sunTxt}</p>` + talk +
       `<div class="modal-actions"><button class="btn btn-go" data-action="next">${last ? "Finish mission ▶" : "Next " + S.unit + " ▶"}</button></div>`;
     speak("Because. " + because);
   }
@@ -1300,11 +1345,9 @@
     let liveNote = "";
     if (mission === "live") liveNote = liveState === "live" ? `<p>${badge("LIVE")} We just checked NASA's space-weather database. These events happened on the Sun <b>this week</b>!</p>` : `<p>${badge("OFFLINE")} We couldn't reach NASA's live data right now, so you'll play real events from the archive instead.</p>`;
     $("#brief").innerHTML = `<h2>Mission briefing</h2>` +
-      `<p class="cat-line">${kittenImg(kitten, "mini")}<span>Hi, commander! I'm ${KITTENS[kitten].name}. Our crew on ${where} is counting on us. Keep these three bars above zero for <b>${n} ${u}s</b>.</span></p>` + liveNote +
-      `<ul class="brief-list"><li><span class="ico">⚡</span><b>Power</b> runs lights, heaters, machines and the radio.</li>` +
-      `<li><span class="ico">💨</span><b>Life Support</b> is air, water and food.</li><li><span class="ico">❤️</span><b>Crew Health</b> drops when radiation hits the crew.</li>` +
-      `<li><span class="ico">🛡️</span><b>Shield Level</b> (0-3): each level blocks 25% of a storm.</li><li><span class="ico">🪙</span><b>Credits</b> are your score. You earn them, never spend them.</li></ul>` +
-      `<p><b>First:</b> choose ${CARGO_LIMIT} crates for the rocket and build your base. <b>Then</b> every ${u}: read the forecast, do 2 missions in your stations, and face the space weather.</p>` +
+      `<p class="cat-line">${kittenImg(kitten, "mini")}<span>Keep all 3 bars above zero for <b>${n} ${u}s</b> on ${where}!</span></p>` + liveNote +
+      `<div class="brief-grid"><div><span>⚡</span>Power</div><div><span>💨</span>Life Support</div><div><span>❤️</span>Crew Health</div><div><span>🛡️</span>Shield 0-3</div><div><span>🪙</span>Credits = score</div></div>` +
+      `<div class="brief-steps"><span class="chip">📦 Pick ${CARGO_LIMIT} crates</span> ➜ <span class="chip">🏗️ Build</span> ➜ <span class="chip">🔧 2 missions / ${u}</span> ➜ <span class="chip">☀️ Survive the Sun</span></div>` +
       `<p class="small">${unitNote}</p>` +
       `<div class="row"><button class="btn btn-blue" data-action="to-location">◀ BACK</button><button class="btn btn-play" data-action="begin">LET'S GO!</button></div>`;
     showScreen("brief");
@@ -1420,6 +1463,10 @@
 
   // test hook for scripted balance play (no effect on the game)
   window.__sols = { get S() { return S; }, MISSIONS, applyMission, resolve, overnight };
+
+  // portrait phones: show the whole plot instead of cropping it
+  const fitGrid = () => { const g = document.getElementById("grid"); if (g) g.setAttribute("preserveAspectRatio", innerWidth < innerHeight ? "xMidYMid meet" : "xMidYMid slice"); };
+  window.addEventListener("resize", fitGrid); fitGrid();
 
   // ===================== boot =====================
   loadSettings(); applySettings();

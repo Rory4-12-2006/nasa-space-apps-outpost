@@ -734,3 +734,92 @@ svg.chart polyline { fill: none; stroke-width: 3; } svg.chart .axis { stroke: #9
   .grow-trays { grid-template-columns: repeat(2, 74px); }
   .dome { transform: scale(.85); }
 }
+
+/* ===== v2.1: full-screen layout (no scrolling), plot images, glowing stations ===== */
+body.site-mars { --bg-image: url("../assets/plot-mars.jpg"); }
+body.site-moon { --bg-image: url("../assets/plot-moon.webp"); }
+html, body { height: 100%; overflow: hidden; }
+.screen.active { height: 100vh; height: 100dvh; overflow: hidden; }
+.screen:not(#screen-game).active { overflow-y: auto; }
+#screen-game.active { display: block; padding: 0; position: relative; }
+#screen-game .playfield { position: absolute; inset: 0; display: block; }
+#screen-game .grid-wrap { width: 100%; height: 100%; }
+#grid { width: 100%; height: 100%; max-width: none; max-height: none; }
+#screen-game .hud { position: absolute; top: 8px; left: 12px; right: 12px; z-index: 3; pointer-events: none; }
+#screen-game .hud > * { pointer-events: auto; }
+#screen-game .hud-left { background: rgba(43, 30, 26, .55); border-radius: 18px; padding: 6px 10px; flex: 0 1 420px; }
+#screen-game .dock { position: absolute; left: 12px; right: 12px; bottom: 96px; z-index: 3; margin: 0; }
+#screen-game .bottom-row { position: absolute; left: 12px; right: 12px; bottom: 8px; z-index: 3; }
+#screen-game .speech { margin-bottom: 8px; max-width: 560px; }
+#grid .tile { fill: transparent; stroke: transparent; filter: none; }
+#grid .tile.can-place { stroke: #fff6a8; stroke-width: 3; stroke-dasharray: none; fill: rgba(255, 240, 140, .35); filter: drop-shadow(0 0 6px #fff27a); }
+#grid .tile.station-tile { fill: rgba(120, 255, 240, .22); stroke: #8ff7ff; stroke-width: 3; stroke-dasharray: none; animation: tileglow 1.2s ease-in-out infinite; }
+@keyframes tileglow { 50% { fill: rgba(120, 255, 240, .5); } }
+#grid .station.pulse .sprite { animation: stglow 1.2s ease-in-out infinite; }
+@keyframes stglow { 0%, 100% { filter: drop-shadow(0 0 6px #fffbcc) drop-shadow(0 0 14px #ffd84a); } 50% { filter: drop-shadow(0 0 12px #ffffff) drop-shadow(0 0 30px #ffcf3a) drop-shadow(0 0 46px #ff9a3c); } }
+#grid .station:hover .sprite { filter: drop-shadow(0 0 16px #fff) drop-shadow(0 0 40px #3ce6ff) !important; }
+#grid .st-badge { font-size: 26px; }
+#grid .wall-ring { stroke-width: 14; }
+.overlay .modal { max-height: calc(100dvh - 32px); overflow-y: auto; margin: auto; }
+
+/* full-screen station interior with zoom-in */
+.overlay[data-kind="station"] { padding: 0; background: var(--int-bg, #1d3557); animation: zoomin .45s ease-out; }
+.overlay[data-kind="station"] .modal { max-width: none; width: 100%; max-height: 100dvh; height: 100dvh; border-radius: 0; margin: 0; background: transparent; border: 0; box-shadow: none; color: #fff; display: flex; flex-direction: column; }
+@keyframes zoomin { from { transform: scale(.35); opacity: 0; border-radius: 50%; } to { transform: scale(1); opacity: 1; } }
+.int-scene { position: relative; flex: 1; display: grid; grid-template-columns: minmax(180px, 30%) 1fr; gap: 16px; align-items: center; padding: 16px 24px; min-height: 0; }
+.int-art img { width: 100%; max-height: 52vh; object-fit: contain; filter: drop-shadow(0 10px 0 rgba(0,0,0,.25)); }
+.int-title { font-family: var(--font-title); font-size: 2.4rem; -webkit-text-stroke: 1.5px #2B1E1A; color: #fff; margin: 0; }
+.int-floor { position: absolute; left: 0; right: 0; bottom: 0; height: 26%; background: rgba(0,0,0,.18); z-index: -1; }
+.overlay[data-kind="station"] .mcard2 { color: var(--ink); }
+.overlay[data-kind="station"] .mg-head h2 { color: #fff; }
+.overlay[data-kind="station"] .mg { flex: 1; min-height: 0; overflow: auto; }
+.overlay[data-kind="station"] .result { background: var(--card); color: var(--ink); border-radius: 22px; padding: 16px; max-width: 860px; margin: auto; }
+.overlay[data-kind="station"] .modal-actions { padding: 8px 24px 16px; }
+.int-power { --int-bg: linear-gradient(180deg, #24407a 0%, #3C6FD1 60%, #1F3B73 100%); }
+.int-greenhouse { --int-bg: linear-gradient(180deg, #5b3d8f 0%, #8E6CCF 55%, #3f7a45 100%); }
+.int-water { --int-bg: linear-gradient(180deg, #1f4f7a 0%, #4FA3E0 60%, #2a6c9c 100%); }
+.int-shield { --int-bg: linear-gradient(180deg, #5c2b1a 0%, #A9502F 60%, #6e3220 100%); }
+.int-lab { --int-bg: linear-gradient(180deg, #1B1F3A 0%, #3a3f6e 60%, #1F3B73 100%); }
+.chip { display: inline-flex; gap: 4px; align-items: center; background: rgba(255,255,255,.9); color: var(--ink); border-radius: 999px; padding: 2px 10px; font-weight: 800; font-size: .95rem; margin: 2px; }
+.chip.up { background: #c9f5d4; } .chip.down { background: #ffd4d0; }
+@media (max-width: 900px) { .int-scene { grid-template-columns: 1fr; } .int-art img { max-height: 22vh; } #screen-game .dock { bottom: 120px; } }
+@media (max-height: 760px) { .crates .cr-info { display: none; } .dock-kitten { width: 72px; height: 72px; } .speech { font-size: .95rem; padding: 6px 12px; } }
+.brief-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin: 12px 0; text-align: center; font-weight: 800; }
+.brief-grid div { background: #fff4df; border: 3px solid var(--card-border); border-radius: 14px; padding: 6px; }
+.brief-grid span { display: block; font-size: 2rem; }
+.brief-steps { text-align: center; font-weight: 800; margin: 8px 0; }
+.choice .cost { display: block; margin-top: 4px; }
+@media (max-width: 640px) { .brief-grid { grid-template-columns: repeat(3, 1fr); } }
+#screen-missions.active, #screen-location.active { justify-content: center; padding-top: 8px; padding-bottom: 8px; }
+#screen-missions .big-title, #screen-location .big-title { margin: 0 0 6px; }
+@media (max-height: 820px) { .mcard { min-height: 0; } .cards4 { gap: 12px; margin: 8px auto; } .lc-pic { width: 110px; height: 110px; } .lcard { gap: 4px; padding: 10px 14px; } }
+#screen-missions.active, #screen-location.active { overflow: hidden; }
+@media (max-width: 640px) {
+  #screen-game .hud { gap: 4px; top: 4px; left: 6px; right: 6px; }
+  #screen-game .hud-left { flex: 1 1 60%; padding: 4px 6px; gap: 2px; }
+  #screen-game .sol { font-size: 1.3rem; -webkit-text-stroke: 1px #5e1c06; }
+  #screen-game .hud-left .bar { grid-template-columns: 22px 1fr 34px; }
+  #screen-game .bar .lbl { display: none; }
+  #screen-game .bar .ico { font-size: 1rem; }
+  #screen-game .bar .track { height: 18px; border-width: 2px; }
+  #screen-game .bar .num { font-size: .8rem; }
+  #screen-game .bar .arrow { grid-column: 3; font-size: .75rem; }
+  #screen-game .seg { width: 22px; height: 8px; }
+  #screen-game .hud-side { flex-direction: column; gap: 2px; }
+  #screen-game .credits .lbl, #screen-game .action-meter .lbl { display: none; }
+  #screen-game .star-badge { width: 40px; height: 40px; font-size: 1.5rem; }
+  #screen-game .aseg { width: 20px; height: 12px; }
+  #screen-game .icon-btn { width: 36px; height: 36px; font-size: 1rem; }
+  #screen-game .hud > .forecast { order: 3; flex-basis: 100%; padding: 4px 8px; grid-template-columns: 34px 1fr; border-width: 3px; border-radius: 14px; }
+  #screen-game .forecast .big-ico { font-size: 1.6rem; }
+  #screen-game .forecast .fc-label { display: none; }
+  #screen-game .forecast .meta { font-size: .72rem; }
+  #screen-game .forecast .fc-text b { font-size: .9rem; }
+  #screen-game .speech { font-size: .85rem; padding: 6px 10px; margin-bottom: 4px; }
+  #screen-game .dock-kitten { width: 52px; height: 52px; }
+  #screen-game #btn-endsol { font-size: 1.1rem; padding: 6px 14px; }
+  #screen-game .bottom-row { grid-template-columns: 1fr auto; align-items: end; }
+  #screen-game .dock { bottom: 84px; padding: 6px; }
+  .crate { padding: 3px; } .cr-pic, .cr-pic img { height: 34px; font-size: 1.6rem; } .cr-eff { font-size: .7rem; }
+  .crates { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; } .cr-name { font-size: .7rem; }
+}
